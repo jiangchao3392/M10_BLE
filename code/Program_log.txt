@@ -1,0 +1,35 @@
+
+M10ÕýÊ½°æ³ÌÐò
+
+2018.1.22
+1£¬µç»úÎªÉîÛÚ½ðË³À³ÌØ 2018Äê1ÔÂÌáÌá¹©µÄÕý×ªµç»ú£¨ÔçÆÚÓÐÒ»Åúµç»úÎª·´×ªµÄ£©
+
+
+ÀÏµç»ú£¨·´×ªµç»ú£©£ºMOTOR_IN1µÍ£¬ MOTOR_IN2¸ß  µç»úÕýÏò×ª¶¯
+
+GPIO_SetInactive(GPIO_PORT_1, GPIO_PIN_0);		// MOTOR_IN1----P1_0¸³µÍµçÆ½
+GPIO_SetActive(GPIO_PORT_1, GPIO_PIN_1);      // MOTOR_IN2----P1_1¸³¸ßµçÆ½
+							 //MOTOR_IN1µÍ£¬ MOTOR_IN2¸ß  µç»úÕýÏò×ª¶¯
+							 
+							 
+2018.1.29
+
+ÐÂµç»ú£º
+¸Ä£º
+Ñ¹ËõÁ¦:555*1.2/1024=0.6375    Ñ¹ËõµçÁ÷= 125mA  Ñ¹ËõÊ±¼ä:1.2s   
+ÊÍ·ÅÁ¦:150*1.2/1024=0.1758V   ÊÍ·ÅµçÁ÷= 34.47mA
+
+Ñ¹Ëõ£º
+GPIO_SetInactive(GPIO_PORT_1, GPIO_PIN_1);		//MOTOR_IN2----P1_1¸³µÍµçÆ½  
+GPIO_SetActive(GPIO_PORT_1, GPIO_PIN_0);      // MOTOR_IN1----P1_0¸³¸ßµçÆ½
+							 //MOTOR_IN1¸ß£¬ MOTOR_IN2µÍ µç»úÕýÏò×ª¶¯º
+							 
+ÀÏµç»ú£º
+¸Ä£º
+Ñ¹ËõÁ¦:555*1.2/1024=0.6375    Ñ¹ËõµçÁ÷= 125mA  Ñ¹ËõÊ±¼ä:1.2s   
+ÊÍ·ÅÁ¦:150*1.2/1024=0.1758V   ÊÍ·ÅµçÁ÷= 34.47mA
+
+Ñ¹Ëõ£º
+GPIO_SetInactive(GPIO_PORT_1, GPIO_PIN_0);		// MOTOR_IN1----P1_0¸³µÍµçÆ½
+GPIO_SetActive(GPIO_PORT_1, GPIO_PIN_1);      // MOTOR_IN2----P1_1¸³¸ßµçÆ½
+							 //MOTOR_IN1µÍ£¬ MOTOR_IN2¸ß  µç»úÕýÏò×ª¶¯º							 

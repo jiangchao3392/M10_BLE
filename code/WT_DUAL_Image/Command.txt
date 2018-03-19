@@ -1,0 +1,5 @@
+cd /d F:\智慧医院\M10软件\M10Ver3.3.2从带空中升级20170407新ADC\WT_DUAL_Image
+
+hex2bin -e bin M10_Ver3.3.2.hex
+
+mkimage single M10_Ver3.3.2.bin ble_580_sw_version.h M10_Ver3.3.2.img
