@@ -48,7 +48,7 @@
  */
 
 #define LP_CLK_OTP_OFFSET 0x7f74     //OTP IQ_Trim offset
-
+extern void uart_flow_on(void);
 extern uint32_t last_temp_time;         // time of last temperature count measurement
 extern uint16_t last_temp_count;        /// temperature counter
 

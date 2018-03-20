@@ -139,11 +139,11 @@ extern struct metrics global_metrics_tosend;
 unsigned char adv_timer_flag = 0;
 uint8_t uBatRemainPercent = 100,BatBuf[10],uBatRemainPercentMA=0,adbattery_status=0,BatCnt = 0,kai=0;
 		float AD_value1 = 0.000;
-	static	uint8_t MotorTimCnt=0,MotorFlag=0,LowPower=0,PowerOff=0;
+static	uint8_t MotorFlag=0,PowerOff=0;
+static	uint8_t LowPower=0;
 extern volatile uint8_t	Power,MotorOn,ZigbFlg,BLE_MAC_Edit;
 extern uint16_t LEDCount,Adc_vbat,iseccnt3,iseccnt4, iseccnt4_flag;//,lkeyDownCount,iSecCount,iSecCnt2,SystemCount,count_present,BeSecTmp[2];
-//extern unsigned char cIptWarning,cFunctionType;
-//uint8_t LacalSetting[5]={0xAB,0xBC,0xCD,0xD1,0x05};		//"ABBCCDD105" 查询本地地址
+
 extern float Adc_div ;
 unsigned char  VIsenseCount;
 unsigned short  VIsense[5],VIsense_Avg;
@@ -184,7 +184,6 @@ int adc_timer_handle(ke_msg_id_t const msgid,
 
 			if(uBatRemainPercentMA<=0x14) //738.2--3.5(3.48)
 			{
-//			if((adc_data-602.000)<=0)  //3.4v
 				if(uBatRemainPercentMA<=0) //3.45(3.34) 611
 					{				
 						uBatRemainPercentMA = 0;	  			
@@ -201,7 +200,6 @@ int adc_timer_handle(ke_msg_id_t const msgid,
 					}
 							if(PowerOff==1)		
 								Power = 0;										 
-//				if((adc_data-602.000)< 0.000)		//3.4
 					if(uBatRemainPercentMA<=0)
 						{   		
 							app_timer_set(MOTOR_TIMER, TASK_APP, 20);
@@ -405,9 +403,7 @@ int key_dispose_handle(ke_msg_id_t const msgid,
                            void const *param, 
 													 ke_task_id_t const dest_id, 
 													 ke_task_id_t const src_id)
-{
-	uint8_t j=0;
-	
+{	
 	return 0;
 }
 

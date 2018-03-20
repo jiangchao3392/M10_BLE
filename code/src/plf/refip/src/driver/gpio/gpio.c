@@ -21,7 +21,9 @@
 #include "uart.h"
 
 extern uint16_t DropCnt;
-uint16_t value0 = 0,DropINT = 0,count_present=0;
+uint16_t value0 = 0;
+uint16_t DropINT = 0;
+uint16_t count_present=0;
 
 #if DEVELOPMENT_DEBUG
 #ifndef GPIO_DRV_PIN_ALLOC_MON_DISABLED
@@ -345,7 +347,7 @@ void $Sub$$GPIO1_Handler(void)    //GPIO中断， 检测到液滴进入此中断
 	      DropCnt = 0;          //计数清零
 			 DropINT = 1;     //检测到液滴标识
       count_present++;
-
+    
 //			SetWord16(GPIO_RESET_IRQ_REG,0x0001);
 	GPIOn_Handler(GPIO1_IRQn);
 //	printf_string("GPIO1_Handler\n\r");

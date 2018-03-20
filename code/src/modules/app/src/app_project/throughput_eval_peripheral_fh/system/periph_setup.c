@@ -70,7 +70,7 @@ void timer_init(void)
 }
 void timer_callback(void)
 {
-  static unsigned char flag = 0;
+//  static unsigned char flag = 0;
 //	if(flag)
 //	{
 ////    GPIO_SetActive(GPIO_PORT_2, GPIO_PIN_1);
@@ -370,7 +370,7 @@ void ZigBee_Wake(void)
 //}
 
 void ZigBee_Setting(void)
-{	  uint8_t j,i; 
+{	  uint8_t i; 
 		 
 	if(USART_RX_STA==1)
 		  {
@@ -389,9 +389,7 @@ void ZigBee_Setting(void)
 								for(i=0;i<9;i++)
 									{
 									uart_send_byte(RestoreSetting[i]);
-									}		
-//										printf_string("\n\r"); 
-//										 uart_send_byte(0xDA);								
+									}									
 								 break;
 							case 0xDA:  
 								if(rxBuffer[8]==0x00)		   //¸´Î»
@@ -404,18 +402,12 @@ void ZigBee_Setting(void)
 									}
 											delay_ms(1000); 			
 									
-//												printf_string("\n\r"); 
-//										 uart_send_byte(0xDA);
 										}			 
 								 break;			 
 
 						 default:	                //
 											break;
 						}					
-//		   for(j=0;j<js;j++)	
-//					{						  
-//					rxBuffer[j]=0;									  
-//				    }
 					js=0;
 		  }	
 		 
