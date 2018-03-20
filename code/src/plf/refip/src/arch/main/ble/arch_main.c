@@ -622,13 +622,13 @@ uint8_t txBuffer[32];                                                   //´æ´¢Êä
 uint8_t Key1 = 0;                                                       //¶Ì°´¸´Î»¼ü±êÖ¾ 1-¶Ì°´ 0-Î´¶Ì°´
 uint8_t Keylong=0;                                                      //³¤°´¸´Î»¼ü±êÖ¾ 1-³¤°´ 0-Î´³¤°´
 uint8_t SwordClose=0;                                                   //
-uint8_t rf_send_sta=0x55;                                               //·¢ËÍÊý¾ÝÄÚÈÝ
+uint8_t rf_send_sta=SEND_END;                                               //·¢ËÍÊý¾ÝÄÚÈÝ aa-Õý³£ÊäÒº 55-ÊäÒºÍê±Ï±¨¾¯
 uint8_t RFOFF=0;                                                        //·¢ËÍ¼ä¸ô¼ÆÊý
 uint8_t Keylonglong=0;                                                  //ÊÇ·ñ¶à´Î¸´Î» 1-ÊÇ 0-·ñ
 uint8_t KeylongCount=0;                                                 //¸´Î»´ÎÊý
 uint8_t SetFlag = 0;                                                    //
 uint8_t ZigbFlg=0;	
-unsigned char cIptWarning = 00; 	                                    //±¨¾¯ÀàÐÍ 00-Õý³£Ý”Òº  55-Ý”ÒºÍê®…  	DD-ÒâÍâÖÐÖ¹
+unsigned char cIptWarning = WARNING_NORMAL; 	                        //±¨¾¯ÀàÐÍ 00-Õý³£Ý”Òº  33-Ô¤±¨¾¯ 55-Ý”ÒºÍê®…  	DD-ÒâÍâÖÐÖ¹ EE-¿ª¸ÇÊäÒº
 unsigned char cFunctionType = FUNC_DROP;                                //ÐÅºÅÀàÐÍ FUNC_DROP-Õý³£ÊäÒº  FUNC_KEY-¸´Î»°´¼ü 0xCC-¹Ø»úÔ¤¾¯
 unsigned char avg_value=1;                                              //Æ½¾ùµÎËÙ
 extern uint16_t iSecCount;                                              //ÊäÒº¹ÜÍÑÀëÊ±¼ä¼ÆÊý
@@ -682,27 +682,27 @@ void KeyScan(void)
 	if(!GPIO_GetPinStatus(BUTTON_PORT, BUTTON1_PIN))
 	{
 		lkeyDownCount++;
-        keypress =1;
+        keypress = true;
 	}
 	else
 	{
-		keypress =0;
+		keypress = false;
 	}
-	if(lkeyDownCount < 3000 && lkeyDownCount!=0 && keypress ==0)  //¶Ì°´
+	if(lkeyDownCount < 3000 && lkeyDownCount!=0 && keypress == false)  //¶Ì°´
 	{ 
-		Key1 = 1;   //¶Ì°´±êÖ¾Î»
+		Key1 = true;   //¶Ì°´±êÖ¾Î»
 		lkeyDownCount = 0;
 	}
 	if(lkeyDownCount > 3500) 
 	{
-		Keylong = 1;    //³¤°´±êÖ¾Î»
+		Keylong = true;    //³¤°´±êÖ¾Î»
 		lkeyDownCount = 0;
 	}
 			
      //¸´Î»´ÎÊý´óÓÚ5			 
 	if(KeylongCount > 5) 		 //  && keypress ==0    
 	{
-		Keylonglong = 1;
+		Keylonglong = true;
 		KeylongCount = 0;
 	}		 
 			 
@@ -711,10 +711,10 @@ void KeyDispose(void)
 {
 	KeyScan();
 									   
-	if(Key1 == 1)     //¼ì²âµ½¶Ì°´¸´Î»										 
+	if(Key1 == true)     //¼ì²âµ½¶Ì°´¸´Î»										 
 	{	 						
-		Key1 = 0;									
-		if(MotorOn == 0) 							
+		Key1 = false;									
+		if(MotorOn == true) 							
 		{	
 			first55_flag=2;//¶Ì°´½âËøºóÖØÖÃflag±êÖ¾Î» 	
 			GPIO_SetActive(LED_PORT, LED_PIN);//					LEDON; 						
@@ -728,8 +728,8 @@ void KeyDispose(void)
 			LEDCount=0;	  							
 			timer[3] = 3;						    
 																											 			
-			MotorOn = 1;   							
-			SwordClose =0;									
+			MotorOn = true;   							
+			SwordClose = false;									
 
 			BeSecTmp[0] = 0;
 			BeSecTmp[1] = 0;
@@ -739,10 +739,10 @@ void KeyDispose(void)
 	}
 	
 	
-	if(Keylong==1)		 // ¼ì²âµ½³¤°´¸´Î»		
+	if(Keylong==true)		 // ¼ì²âµ½³¤°´¸´Î»		
 	{
-		Keylong = 0;								
-		if(MotorOn == 1) 							
+		Keylong = false;								
+		if(MotorOn == true) 							
 		{	
 			GPIO_SetActive(LED_PORT, LED_PIN);//LEDON;					   				
 			GPIO_SetActive(GPIO_PORT_2, GPIO_PIN_7);	   //¿ª5VµçÔ
@@ -754,9 +754,9 @@ void KeyDispose(void)
 			KeylongCount++;//¼ÇÂ¼¸´Î»´ÎÊý
 			SystemCount = 0;						
 			count_present = 0; 						
-			cIptWarning =0x00; 											
+			cIptWarning = WARNING_NORMAL; 											
 			cFunctionType = FUNC_KEY;		  //°´¼ü¸´Î»0xBB
-			ResetFlg = 1;														
+			ResetFlg = true;														
 					
 			BeSecTmp[0] = 0;
 			BeSecTmp[1] = 0;								
@@ -764,7 +764,7 @@ void KeyDispose(void)
 		}
 		else   										
 		{   
-			cIptWarning=0x00;
+			cIptWarning = WARNING_NORMAL;
 			SystemCount=0;
 			GPIO_SetActive(LED_PORT, LED_PIN);//LEDON; 				  							
 			app_timer_set(MOTOR_RESET, TASK_APP, 50);		// µç»ú¸´Î»
@@ -781,19 +781,19 @@ void KeyDispose(void)
 			count_present = 0;	
 										
 			cFunctionType = FUNC_KEY;	 		 //°´¼ü¸´Î»0xBB												 										
-			MotorOn = 1;   							
-			SwordClose =0;		
-			ResetFlg = 1;
+			MotorOn = true;   							
+			SwordClose = false;		
+			ResetFlg = true;
 														
 			BeSecTmp[0] = 0;
 			BeSecTmp[1] = 0;
 			GPIO_SetInactive(LED_PORT, LED_PIN);//LEDOFF;
 		}			
 	}
-	if(Keylonglong==1)  //¸´Î»´ÎÊý´óÓÚ5´Î
+	if(Keylonglong == true)  //¸´Î»´ÎÊý´óÓÚ5´Î
 	{
-		Keylonglong=0;
-		GPIO_SetActive(GPIO_PORT_2, GPIO_PIN_7);	   //¿ª5VµçÔ
+		Keylonglong = false;
+		GPIO_SetActive(GPIO_PORT_2, GPIO_PIN_7);	   //¿ª5VµçÔ´
 		delay_us(20);										
 		SetBeep();//±êÖ¾333								
 		delay_us(560);							   	
@@ -802,7 +802,7 @@ void KeyDispose(void)
 		SetBeep(); //±êÖ¾555
 		GPIO_SetInactive(GPIO_PORT_2, GPIO_PIN_7);   //¹Ø5VµçÔ´ 	
 		ZigBee_Wake();
-        SetFlag = 1;   //zigbeeÉèÖÃ
+        SetFlag = true;   //zigbeeÉèÖÃ
 					
 		delay_us(560);
         GPIO_SetActive(LED_PORT, LED_PIN);//LEDON; 
@@ -917,8 +917,8 @@ void InitBLE(void)
 void InitFlash(void)
 {
     GPIO_SetActive(GPIO_PORT_2, GPIO_PIN_0);  //LED             
-	Activeflag = 1;	
-	if(Activeflag==1)
+	Activeflag = true;	
+	if(Activeflag==true)
 	{ 		  
 		 GPIO_SetActive(GPIO_PORT_1 , GPIO_PIN_3);  //power_ON  Èí¼þ¿ªÏµÍ³µçÔ´
 	}		 
@@ -1271,15 +1271,15 @@ void CheckStatus(void)
 
 /////////////////////////·ðÉ½8-29////////////////////////////		
 /////¿ª¸Ç¼ì²â
-		if(GPIO_GetPinStatus(GPIO_PORT_2, GPIO_PIN_5)==1)			 // P2_5  CLAMP¿ØÖÆ¿Ú   ¿ª¸ÇÔò½øÈëÏÂÃæº¯Êý
+		if(GPIO_GetPinStatus(GPIO_PORT_2, GPIO_PIN_5) == true)			 // P2_5  CLAMP¿ØÖÆ¿Ú   ¿ª¸ÇÔò½øÈëÏÂÃæº¯Êý
 		{
-			clamp=1;     //¿ª¸Ç±êÖ¾Î»
-			Power = 1;	 //×ÜµçÔ´ÉÏµç±êÖ¾Î»
+			clamp = true;     //¿ª¸Ç±êÖ¾Î»
+			Power = true;	 //×ÜµçÔ´ÉÏµç±êÖ¾Î»
         					
 		}
         else
         {
-            clamp = 0;
+            clamp = false;
         }
 }
 
@@ -1288,24 +1288,24 @@ void PowerOff(void)
 {
     GPIO_SetInactive(GPIO_PORT_1, GPIO_PIN_3);	 //POWER_ON  ÏµÍ³¶Ïµç		
 	GPIO_SetInactive(LED_PORT, LED_PIN);	 		
-	Activeflag =0;    
+	Activeflag = false;    
 }
 
 
 //¼ì²âÊÇ·ñÐèÒª×Ô¶¯¹Ø»ú
 void CheckAutoPowerOffStatus(void)
 {
-    if(clamp ==1 && (DropINT == 1||count_present<7))		   //¿ª¸Ç ²¢ÇÒ ¼ì²âµ½ÓÐÒºµÎ»òÕßÒºµÎÊýÐ¡ÓÚ7£¬ ÔòÈí¼þ¹Ø»ú  		 
+    if(clamp ==true && (DropINT == true||count_present<7))		   //¿ª¸Ç ²¢ÇÒ ¼ì²âµ½ÓÐÒºµÎ»òÕßÒºµÎÊýÐ¡ÓÚ7£¬ ÔòÈí¼þ¹Ø»ú  		 
 	{					                                           //DropINT ¼ì²âµ½ÒºµÎ±êÖ¾
-		clamp = 0;    
+		clamp = false;    
 		SystemCount=0;  //ÏµÍ³¼ÆÊ±¼ÆÊý  0*0.5s
 														
 	}	
-	if(count_present<7  && cIptWarning==0x00 && clamp==0 )	  //ºÏ¸Ç ²¢ÇÒÒºµÎÊýÐ¡ÓÚ7 ²¢ÇÒ ±¨¾¯ÀàÐÍÎª00-Õý³£ÊäÒº¯Ò 	
+	if(count_present<7  && cIptWarning==WARNING_NORMAL && clamp==false )	  //ºÏ¸Ç ²¢ÇÒÒºµÎÊýÐ¡ÓÚ7 ²¢ÇÒ ±¨¾¯ÀàÐÍÎª00-Õý³£ÊäÒº¯Ò 	
 	{								
 		if(SystemCount>=60&&SystemCount<=80)   //30sÄÚ¼ì²â²»µ½ÒºµÎ£¬¹Ø»úÇ°·¢ËÍ¹Ø»úÔ¤¾¯ÐÅºÅ0XCC
 		{  
-			cFunctionType = 0xcc;   //¹Ø»úÔ¤¾¯ 0xCC
+			cFunctionType = FUNC_ALARM;   //¹Ø»úÔ¤¾¯ 0xCC
 			if(SystemCount%2==0)
             {
 				timer[3]=3;
@@ -1320,19 +1320,19 @@ void CheckAutoPowerOffStatus(void)
 //Êý¾ÝÀàÐÍÅÐ¶¨  0xAA:Õý³£ÊäÒº   0xBB£º°´¼ü¸´Î»			
 	if(cFunctionType ==FUNC_KEY&&count_present<=3)		//¸´Î»ÐÅºÅ³ÖÐø3µÎ	cFunctionType:Êý¾ÝÀàÐÍ		FUNC_KEY=0xBB
     {
-        alarm_signal=1;		
+        alarm_signal=true;		
     }            
 	else 
     {            
-		alarm_signal=0;		   //		µÈÓÚÁãÊ±ÅÐ¶¨ cFunctionType = FUNC_DROP;
+		alarm_signal=false;		   //		µÈÓÚÁãÊ±ÅÐ¶¨ cFunctionType = FUNC_DROP;
     }
 }
 
 void OpenClamStatus(void)
 {
-    Motor = 1;							   	
+    Motor = true;							   	
 	iSecCount = 0;	                              //ÐÞÕýÊäÒº¹ÜÍÑÀëËÀÇøÊ±¼ä					   	
-    if(cIptWarning == 0xEE && count_present>6)			 //¿ª¸ÇÊäÒº±¨¾¯  ²¢ÇÒÒºµÎÊý´óÓÚ6  
+    if(cIptWarning == WARNING_UNCOVER && count_present>6)			 //¿ª¸ÇÊäÒº±¨¾¯  ²¢ÇÒÒºµÎÊý´óÓÚ6  
 	{
 		if(opencount%14==0)	//ÏìÉùÌáÊ¾²»ºöÂÔ    Ã¿7S±¨¾¯Ò»´Î
 		{
@@ -1346,7 +1346,7 @@ void OpenClamStatus(void)
 						
 	if(iSecCnt2%20==0)//¿ª¸Ç10s·¢Ò»´Î±¨¾¯						
 	{						        																			
-		cIptWarning = 0xDD;              	
+		cIptWarning = WARNING_TERMINAL;              	
 		cFunctionType = FUNC_DROP;
 		value2 =  avg_value;			
   /////ÊäÒºÍÑÀë20min£¬Ò»ºÏ¸Ç¾Í¹Ø»ú
@@ -1354,13 +1354,13 @@ void OpenClamStatus(void)
 		{
 			PowerOff();							  //¹Ø»ú
 		}										 								        															
-		if(RFOFF == 0)  
+		if(RFOFF == false)  
         {
-            halt = 1;	
+            halt = true;	
         }			
 	}	
 						
-	if(halt == 1 && RFOFF == 0)	   		
+	if(halt == true && RFOFF == false)	   		
 	{    
 		if(iSecCnt2<2390)	 //¿ª¸ÇÊ±¼ä³¬¹ý10s£¬Ã¿¸ô10s±¨¾¯Ò»´ÎÐ¡ÓÚ20minÊ±  20minÒÔÍâ 5sÈßÓà 
 		{
@@ -1370,7 +1370,7 @@ void OpenClamStatus(void)
             GPIO_SetInactive(GPIO_PORT_2, GPIO_PIN_7);   //¹Ø5VµçÔ´ 			
 		} 
 		count_present += (avg_value/6);  		 
-		rf_send_sta=0xaa;			
+		rf_send_sta=SEND_NORMAL;			
 	}
 }
 
@@ -1391,8 +1391,8 @@ void PreAlarm(void)
 		delay_us(600);
 		SetBeep();
 		GPIO_SetInactive(GPIO_PORT_2, GPIO_PIN_7);   //¹Ø5VµçÔ´ 
-		cIptWarning = 0x33;
-		rf_send_sta=0xaa;
+		cIptWarning = WARNING_PREALARM;
+		rf_send_sta=SEND_NORMAL;
 		LEDCount=0;	
 		iSecCount = 14;
 	}	
@@ -1402,13 +1402,13 @@ void PreAlarm(void)
 		if(!SwordClose)  
 		{ 
 			timer[3]=24;  			  //		³õÊ¼»¯Ê±¼ä12s
-			Motor = 0;	                                                                                                                                                                                                                                                                                                                                                      									
+			Motor = false;	                                                                                                                                                                                                                                                                                                                                                      									
 		} 				
-		if(Motor == 0)									
+		if(Motor == false)									
 		{
             app_timer_set(MOTOR_TIMER, TASK_APP, 50);	// µç»úËøËÀ			
-			Motor = 1;									
-			SwordClose =1;		
+			Motor = true;									
+			SwordClose = true;		
 			LEDCount = 0;
 		}				
 		if(!BeSecTmp[0])
@@ -1431,10 +1431,10 @@ void PreAlarm(void)
 		if(( (iSecCount-BeSecTmp[0])%20==0 ||first55_flag!=0 ) && Key1!=1 )//10sÒ»´Î||(BeSecTmp[1]%2==0&&BeSecTmp[1]>1) 
 		{							  
 			timer[3]=3;	 					
-			cIptWarning = 0x55;	  			
+			cIptWarning = WARNING_END;	  			
 			cFunctionType = FUNC_DROP;
 			value2 =  0;	
-			halt = 1;						 	
+			halt = true;						 	
 			alarm_temp=0;
 			first55_flag=first55_flag-1;				
 		} 										
@@ -1449,14 +1449,14 @@ void PreAlarm(void)
 //µÎÒº´¦Àí
 void Drip(void)
 {
-    DropINT = 0;
-	SetFlag = 0;
+    DropINT = false;
+	SetFlag = false;
 	if(count_present<=60) 	//´¦Àí³õÊ¼60µÎ				
 	{  
 		GPIO_SetActive(LED_PORT, LED_PIN);  
 		delay_us(600);   //×î¿ªÊ¼60µÎ£¬ Ã¿µÎLEDµÆÁÁÒ»´Î
 	}
-    if(alarm_signal==0)
+    if(alarm_signal==false)
     {		
         cFunctionType = FUNC_DROP;   //Êý¾ÝÀàÐÍ  0xAA£ºÕý³£ÊäÒº
     }
@@ -1466,13 +1466,13 @@ void Drip(void)
 	alarm_sta=0x11;			   	
 	alarm_temp=0;				
 	//ºÏ¸Ç¼ì²â			
-	if(GPIO_GetPinStatus(GPIO_PORT_2, GPIO_PIN_5)==0)  //  ºÏÉÏ¸Ç
+	if(GPIO_GetPinStatus(GPIO_PORT_2, GPIO_PIN_5)==false)  //  ºÏÉÏ¸Ç
 	{
-		cIptWarning = 0x00;   //  Õý³£ÊäÒº×´Ì¬ 0x00						
+		cIptWarning = WARNING_NORMAL;   //  Õý³£ÊäÒº×´Ì¬ 0x00						
 	} 
 	else  if(count_present>6)      //¿ª¸Ç²¢ÇÒÒºµÎÊý´óÓÚ6µÎ  
 	{ 
-		cIptWarning = 0xEE;    //  ¿ª¸ÇÊäÒº×´Ì¬ 0xEE
+		cIptWarning = WARNING_UNCOVER;    //  ¿ª¸ÇÊäÒº×´Ì¬ 0xEE
     }		
 	//ÒºµÎËÙ¶È¼ÆËã				
 	value1=value0&0xffff;		   // value1 Á½ÒºµÎÖ®¼äµÄ¼ä¸ôÊ±¼ä
@@ -1489,9 +1489,9 @@ void Drip(void)
     if(iMaCount == 5)					     					   						
 	{  
 		iMaCount = 0;
-        speed_five_status=1;  //ÒÑ¼ì5µÎ
+        speed_five_status=true;  //ÒÑ¼ì5µÎ
 	}
-	if(speed_five_status==1)		
+	if(speed_five_status==true)		
 	{  
 		value2 = (maBuffer[1]+maBuffer[2]+maBuffer[3]+maBuffer[4]+maBuffer[5])/5;
 	}
@@ -1502,14 +1502,14 @@ void Drip(void)
 	avg_value = (maBuffer[1]+maBuffer[2]+maBuffer[3]+maBuffer[4]+maBuffer[5]-maBuffer[6])/4;					
 	if( value2!=0 && value2<=255 &&(value2-iTempMIN>=5||iTempMIN-value2>=5))			//abs(value2 - iTempMIN)>=10 &&Sleep!=1
 	{ 
-		senddata = 1;	// µÎËÙ´óÓÚ0Ð¡ÓÚ255Ê±£¬  ²¢ÇÒÓëÉÏ´Î·¢ËÍÊäÒºËÙ¶È¶Ô±È±ä»¯³¬¹ý5£¬  Ôò·¢ËÍÊý¾Ý				
+		senddata = true;	// µÎËÙ´óÓÚ0Ð¡ÓÚ255Ê±£¬  ²¢ÇÒÓëÉÏ´Î·¢ËÍÊäÒºËÙ¶È¶Ô±È±ä»¯³¬¹ý5£¬  Ôò·¢ËÍÊý¾Ý				
 		timer[4] = 24;						    
 	}				
 	else if(value2!=0&&value2<=255&&(value2-iTempMIN<5||iTempMIN-value2<5))		//Ð¡ÓÚ200¸Ä³ÉÐ¡ÓÚµÈÓÚ255
 	{
 		if(timer[4] < 5)  // µÎËÙ´óÓÚ0Ð¡ÓÚ255Ê±£¬ÓëÉÏ´Î·¢ËÍËÙ¶È±ä»¯Ð¡ÓÚ5£¬  Ôò¼ä¸ô(24-5+1)*0.5s=10s·¢ËÍÊý¾Ý					
 		{
-			senddata = 1;				
+			senddata = true;				
 			timer[4] = 24;				
 		}
 	}		 
@@ -1528,26 +1528,26 @@ void Drip(void)
     }        
 	if(count_present<5)  //ÒºµÎ¼ÆÊý
 	{
-        senddata=1;
+        senddata=true;
     }				
 	if(count_present<2&&first_count_status==1)  //ÉÏµçÊ×µÎ ¶ªÆúÊý¾Ý Ç¿ÖÆÎÞÏß²»·¢ËÍ
 	{
 		count_present=0;
-		first_count_status=0;  //³õÊ¼ÖµÎª1 
-		senddata=0;
+		first_count_status=false;  //³õÊ¼ÖµÎª1 
+		senddata=false;
 		iMaCount=0;//Æ½¾ùÊý¾Ý¼ÆÊýÇåÁã
 	}
-	if(senddata==1)		  	
+	if(senddata==true)		  	
 	{
-		senddata = 0;					
+		senddata = false;					
 		iTempMIN = value2;	//Ã¿·¢ËÍÒ»´ÎÊý¾Ý£¬°Ñ·¢ËÍËÙ¶È¼ÇÂ¼ÎªÉÏ´Î·¢ËÍËÙ¶È			
-		if(RFOFF == 0)
+		if(RFOFF == false)
         {            
-            rf_send_sta=0xaa;	
+            rf_send_sta=SEND_NORMAL;	
         }            
 		else 
 		{
-            rf_send_sta=0x55; 
+            rf_send_sta=SEND_END; 
         }            
 	}
 						
@@ -1557,19 +1557,19 @@ void Drip(void)
 //ÎÞÏßÊý¾Ý·¢ËÍ
 void BleSendData(void)
 {
-    if(cIptWarning == 0x33||alarm_signal==1)
+    if(cIptWarning == WARNING_PREALARM||alarm_signal==true)
 	{		
 		if(LEDCount==21) 				 //21*0.5=10.5s		
 		{ 	
-			rf_send_sta=0xaa;		     
+			rf_send_sta=SEND_NORMAL;		     
 			LEDCount=0;
 		}
 	}						
-	if(timer[3]==2 && RFOFF==0)		 		//2*0.5=1s
+	if(timer[3]==2 && RFOFF==false)		 		//2*0.5=1s
 	{
-		rf_send_sta = 0xaa;					   	
+		rf_send_sta = SEND_NORMAL;					   	
 	}			
-	if((rf_send_sta==0xaa||ResetFlg==1)&&SetFlag != 1)		// 	Õý³£ÊäÒº»òÕß¸´Î» ²¢ÇÒzigbeeÎ´ÉèÖÃ			
+	if((rf_send_sta==SEND_NORMAL|ResetFlg==1)&&SetFlag != true)		// 	Õý³£ÊäÒº»òÕß¸´Î» ²¢ÇÒzigbeeÎ´ÉèÖÃ			
 	{
 		ZigBee_Wake();
 		delay_us(800);	
@@ -1610,9 +1610,9 @@ void BleSendData(void)
 		{
 			uart_send_byte(txBuffer[i]);
 		}				
-		ZigbFlg =1;
+		ZigbFlg =true;
 		timer[5] = 6;					
-		if(M10_Master_conready==1)        //À¶ÑÀÒÑÁ¬½Ó
+		if(M10_Master_conready==true)        //À¶ÑÀÒÑÁ¬½Ó
 		{ 		
 			attmdb_att_set_value(STREAMDATAD_DIR_VAL_HANDLE(0),20, (uint8_t*)&(txBuffer[0])); //
 			prf_server_send_event((prf_env_struct *)&(streamdatad_env.con_info), false, STREAMDATAD_DIR_VAL_HANDLE(0));
@@ -1623,19 +1623,19 @@ void BleSendData(void)
 		{
             txCount=1;
         }
-		halt =0;
+		halt =false;
 			
 		RFOFF = 2;	//·¢ËÍ¼ä¸ô¼ÆÊ±  2*0.5s=1s
-		rf_send_sta=0x55;
-		ResetFlg = 0;				
+		rf_send_sta=SEND_END;
+		ResetFlg = false;				
 		GPIO_SetInactive(LED_PORT, LED_PIN); 
 	}	
-    if(ZigbFlg == 1&&SetFlag != 1)
+    if(ZigbFlg == true&&SetFlag != true)
 	{
 		if(timer[5]<5)
         {		
 			ZigBee_Sleep();	
-             ZigbFlg=0;
+            ZigbFlg=false;
 		}		
 	}	
 }
@@ -1663,19 +1663,19 @@ int main_func(void)
      * Main loop
      ************************************************************************************
      */
-    while(1)
+    while(true)
     {   	     
         if(SetAndWaitInterrupts(&sleep_mode) == 1)    //ÉèÖÃ²¢µÈ´ýÖÐ¶Ï
         {
             continue;
         }
         CheckStatus();                                //¼ì²â¼°¸üÐÂ×´Ì¬
-        if(DropINT==1)                                //¼ì²âµ½ÒºµÎ
+        if(DropINT==true)                                //¼ì²âµ½ÒºµÎ
 		{			
 			Drip();	
 		}	
         CheckAutoPowerOffStatus();                    //¼ì²âÊÇ·ñÐèÒª×Ô¶¯¹Ø»ú				
-		if(clamp ==1  && MotorOn==1)                  //¿ª¸Ç²¢ÇÒµç»úÎ´ËøËÀ
+		if(clamp ==true  && MotorOn==true)                  //¿ª¸Ç²¢ÇÒµç»úÎ´ËøËÀ
 		{							   							 
 			OpenClamStatus();	                      //¿ª¸Ç×´Ì¬±¨¾¯¼°×Ô¶¯¹Ø»ú						 					
 		}

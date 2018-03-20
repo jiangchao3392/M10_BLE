@@ -250,7 +250,7 @@ void SWTIM_Handler(void)
 			if(timer[4] > 1)timer[4]--;			
 			if(BeSecTmp[1]>2) 	BeSecTmp[1]--;	
 			if(RFOFF > 0)RFOFF--;	
-       timer[5]--; 
+            timer[5]--; 
 		}
 		
 		if(timer[6]==60)

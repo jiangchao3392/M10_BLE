@@ -3,7 +3,7 @@
 <title>Static Call Graph - [.\out\full_emb_sysram.axf]</title></head>
 <body><HR>
 <H1>Static Call Graph for image .\out\full_emb_sysram.axf</H1><HR>
-<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060528: Last Updated: Tue Mar 20 08:55:06 2018
+<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060528: Last Updated: Tue Mar 20 10:27:23 2018
 <BR><P>
 <H3>Maximum Stack Usage =        296 bytes + Unknown(Cycles, Untraceable Function Pointers)</H3><H3>
 Call chain for Maximum Stack Depth:</H3>
@@ -1202,7 +1202,7 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[d0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleSendData
 </UL>
 
-<P><STRONG><a name="[d0]"></a>BleSendData</STRONG> (Thumb, 374 bytes, Stack size 24 bytes, arch_main.o(.text))
+<P><STRONG><a name="[d0]"></a>BleSendData</STRONG> (Thumb, 388 bytes, Stack size 24 bytes, arch_main.o(.text))
 <BR><BR>[Stack]<UL><LI>Max Depth = 52<LI>Call Chain = BleSendData &rArr; BCC_verify
 </UL>
 <BR>[Calls]<UL><LI><a href="#[d2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;uart_send_byte
@@ -1218,7 +1218,7 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[1e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main_func
 </UL>
 
-<P><STRONG><a name="[1e]"></a>main_func</STRONG> (Thumb, 182 bytes, Stack size 8 bytes, arch_main.o(.text))
+<P><STRONG><a name="[1e]"></a>main_func</STRONG> (Thumb, 180 bytes, Stack size 8 bytes, arch_main.o(.text))
 <BR><BR>[Stack]<UL><LI>Max Depth = 128<LI>Call Chain = main_func &rArr; InitPlatform &rArr; periph_init &rArr; spi_flash_auto_detect &rArr; spi_read_flash_jedec_id &rArr; spi_flash_wait_till_ready &rArr; spi_flash_read_status_reg &rArr; spi_transaction &rArr; spi_cs_low &rArr; GPIO_SetInactive
 </UL>
 <BR>[Calls]<UL><LI><a href="#[d0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BleSendData
