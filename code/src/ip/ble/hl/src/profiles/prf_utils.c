@@ -1427,6 +1427,10 @@ void prf_create(uint8_t conidx)
     /* simple connection creation handler, nothing to do. */
 }
 #endif
+
+
+///////
+//主设备断开处理
 void prf_cleanup_func(uint8_t conidx, uint16_t conhdl, uint8_t reason)
 {   
 	#if (M10DEBUG)
@@ -1830,10 +1834,12 @@ void prf_cleanup_func(uint8_t conidx, uint16_t conhdl, uint8_t reason)
         gapc_send_disconect_ind(conidx, reason, conhdl, TASK_WSSS);
     }
     #endif // (BLE_WSS_SERVER)
+		
+		printf_string("\n\rduan kai lian jie\n");
 	  uart_send_byte(0x4F);
     uart_send_byte(0x4B); //OK ASCII
 	  uart_send_byte(0xFD); //返回控制指令		
-    M10_Master_conready=0;         /////////////////////
+    M10_Master_conready=0;         /////////////////////置0后， M10将不再发送数据
 		app_timer_set(MY_TIMER, TASK_APP, 20);
 }
 

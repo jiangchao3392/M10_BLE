@@ -43,7 +43,6 @@
 ".\out\app_spotar.o"
 ".\out\app_dis_task.o"
 ".\out\app_dis.o"
-E:\Keil_v5\ARM\RV31\Lib\RTX_CM1.LIB
 --library_type=microlib --strict --scatter "..\..\..\scatterfiles\scatterfile_common.sct"
 ..\..\..\misc\rom_symdef.txt --symdefs=full_emb_sysram_symdef.txt --keep gapm.o(timeout_table_area) --keep jump_table.o(*) --keep nvds.o(*) --any_placement=best_fit --datacompressor off --summary_stderr --info summarysizes --map --load_addr_map_info --xref --callgraph --symbols
 --info sizes --info totals --info unused --info veneers

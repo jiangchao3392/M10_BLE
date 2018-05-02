@@ -29,7 +29,9 @@ volatile struct __TIMER0_CTRL_REG timer0_ctrl_reg __attribute__((at(TIMER0_CTRL_
 volatile struct __TRIPLE_PWM_CTRL_REG triple_pwm_ctrl_reg __attribute__((at(TRIPLE_PWM_CTRL_REG)));
 uint8_t timer[10];
 uint16_t DropCnt = 0,opencount=0;
-uint16_t iSecCount = 0,LEDCount=0,SystemCount=0,iSecCnt2=0,iseccnt3=0,iseccnt4=0,iseccnt4_flag;;
+uint16_t iSecCount = 0,LEDCount=0,SystemCount=0,iSecCnt2=0,iseccnt3=0,iseccnt4=0,iseccnt4_flag;
+uint16_t ADCcount = 0;   //获取电量计时计数
+volatile uint16_t resetTime =0, setTime = 0;     //复位时间计数
 extern uint16_t BeSecTmp[2];
 extern uint8_t RFOFF,kai;
 /**
@@ -218,13 +220,15 @@ void SWTIM_Handler(void)
 //	  static unsigned char LEDCount = 0;
 //	if (TIMER0_callback != NULL)
 //        TIMER0_callback();
-	
+	 
 	 DropCnt++;    //两液滴间隔时间计时 500us
 	 CNT++;
 	 if(CNT>=20)
 	   {
+             
 			 CNT=0;			 
 			 timer[0]++;
+             setTime++;
 			 timer[6]++;
 //			 iWaringSend--;			
 			if(timer[2]>0)
@@ -240,6 +244,7 @@ void SWTIM_Handler(void)
 	//	if(timer[0]%5==0&&kai)iseccnt3++;		   
 		if(timer[0]==50)	//500ms			   
 		{
+            ADCcount++;
 			opencount++;
 			timer[0]=0;
 			iSecCnt2++;		
@@ -251,16 +256,18 @@ void SWTIM_Handler(void)
 			if(BeSecTmp[1]>2) 	BeSecTmp[1]--;	
 			if(RFOFF > 0)RFOFF--;	
             timer[5]--; 
+            resetTime++;
+            
 		}
 		
-		if(timer[6]==60)
-		{
-			
-			timer[6]=0;
-			
-			iseccnt3++;
-			
-		}
+//		if(setTime==5)
+//		{
+//			
+//			setTime=0;
+//			
+//			iseccnt3++;
+//			
+//		}
 //		if(iWaringSend<1)	iWaringSend = 1;  		 
 //	 					if(SystemCount>65)	SystemCount = 65;
 //		if(LEDCount>42)		LEDCount=40;

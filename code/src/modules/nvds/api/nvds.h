@@ -117,9 +117,9 @@ enum NVDS_TAG
     /// Bluejay specific Settings
     NVDS_TAG_BJ_TXCNTL1                 = 0x0A,
     /// BLE Application Advertising data
-    NVDS_TAG_APP_BLE_ADV_DATA            = 0x0B,
+    NVDS_TAG_APP_BLE_ADV_DATA           = 0x0B,
     /// BLE Application Scan response data
-    NVDS_TAG_APP_BLE_SCAN_RESP_DATA        = 0x0C,
+    NVDS_TAG_APP_BLE_SCAN_RESP_DATA     = 0x0C,
     /// External wake-up time
     NVDS_TAG_EXT_WAKEUP_TIME            = 0x0D,
     /// Oscillator wake-up time

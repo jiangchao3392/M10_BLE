@@ -248,7 +248,8 @@ void test_pkt_init (void);
  * @return void.
  ****************************************************************************************
 */
-
+void motor_handleEx(void);
+void motor_reset_handleEx(void);
 void test_pkt_gen (void);                           
 /// @} APP
 

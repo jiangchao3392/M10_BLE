@@ -117,18 +117,18 @@
       <TargetDriverDllRegistry>
         <SetRegEntry>
           <Number>0</Number>
-          <Key>DLGUARM</Key>
-          <Name>d笙</Name>
+          <Key>JL2CM3</Key>
+          <Name>-U20090928 -O206 -S2 -ZTIFSpeedSel5000 -A0 -C0 -JU1 -JI127.0.0.1 -JP0 -RST0 -N00("ARM CoreSight SW-DP") -D00(0BB11477) -L00(0) -TO18 -TC10000000 -TP21 -TDS8008 -TDT0 -TDC1F -TIEFFFFFFFF -TIP8 -TB1 -TFE0 -FO7 -FD20000000 -FC1000 -FN0</Name>
         </SetRegEntry>
         <SetRegEntry>
           <Number>0</Number>
           <Key>UL2CM3</Key>
-          <Name>-U -O206 -S0 -C0 -P00 -TO18 -TC10000000 -TP21 -TDS8007 -TDT0 -TDC1F -TIEFFFFFFFF -TIP8 -FO7 -FD20000000 -FC1000 -FN0</Name>
+          <Name>-U -O206 -S0 -C0 -P00 -TO18 -TC10000000 -TP21 -TDS8007 -TDT0 -TDC1F -TIEFFFFFFFF -TIP8 -FO7  -FC1000 -FD20000000</Name>
         </SetRegEntry>
         <SetRegEntry>
           <Number>0</Number>
-          <Key>JL2CM3</Key>
-          <Name>-U20090928 -O78 -S2 -ZTIFSpeedSel5000 -A0 -C0 -JU1 -JI127.0.0.1 -JP0 -RST0 -N00("ARM CoreSight SW-DP") -D00(0BB11477) -L00(0) -TO18 -TC10000000 -TP21 -TDS8007 -TDT0 -TDC1F -TIEFFFFFFFF -TIP8 -TB1 -TFE0 -FO7 -FD20000000 -FC1000 -FN0</Name>
+          <Key>DLGUARM</Key>
+          <Name></Name>
         </SetRegEntry>
         <SetRegEntry>
           <Number>0</Number>
@@ -150,50 +150,18 @@
         <Bp>
           <Number>0</Number>
           <Type>0</Type>
-          <LineNumber>560</LineNumber>
+          <LineNumber>1358</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>536889470</Address>
+          <Address>536874224</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
           <SizeOfObject>0</SizeOfObject>
           <BreakByAccess>0</BreakByAccess>
           <BreakIfRCount>1</BreakIfRCount>
-          <Filename>E:\杈撴恫鐩戞帶\M10Ver BLE 10.27_j20180129 - 鍓湰\src\modules\app\src\app_project\throughput_eval_peripheral_fh\app_throughput_peripheral_proj.c</Filename>
+          <Filename>.\..\..\..\src\plf\refip\src\arch\main\ble\arch_main.c</Filename>
           <ExecCommand></ExecCommand>
-          <Expression>\\full_emb_sysram\../../../src/modules/app/src/app_project/throughput_eval_peripheral_fh/app_throughput_peripheral_proj.c\560</Expression>
-        </Bp>
-        <Bp>
-          <Number>1</Number>
-          <Type>0</Type>
-          <LineNumber>770</LineNumber>
-          <EnabledFlag>1</EnabledFlag>
-          <Address>536872702</Address>
-          <ByteObject>0</ByteObject>
-          <HtxType>0</HtxType>
-          <ManyObjects>0</ManyObjects>
-          <SizeOfObject>0</SizeOfObject>
-          <BreakByAccess>0</BreakByAccess>
-          <BreakIfRCount>1</BreakIfRCount>
-          <Filename>E:\杈撴恫鐩戞帶\M10Ver BLE 10.27_j20180129 - 鍓湰\src\plf\refip\src\arch\main\ble\arch_main.c</Filename>
-          <ExecCommand></ExecCommand>
-          <Expression>\\full_emb_sysram\../../../src/plf/refip/src/arch/main/ble/arch_main.c\770</Expression>
-        </Bp>
-        <Bp>
-          <Number>2</Number>
-          <Type>0</Type>
-          <LineNumber>705</LineNumber>
-          <EnabledFlag>1</EnabledFlag>
-          <Address>536872596</Address>
-          <ByteObject>0</ByteObject>
-          <HtxType>0</HtxType>
-          <ManyObjects>0</ManyObjects>
-          <SizeOfObject>0</SizeOfObject>
-          <BreakByAccess>0</BreakByAccess>
-          <BreakIfRCount>1</BreakIfRCount>
-          <Filename>E:\杈撴恫鐩戞帶\M10Ver BLE 10.27_j20180129 - 鍓湰\src\plf\refip\src\arch\main\ble\arch_main.c</Filename>
-          <ExecCommand></ExecCommand>
-          <Expression>\\full_emb_sysram\../../../src/plf/refip/src/arch/main/ble/arch_main.c\705</Expression>
+          <Expression>\\full_emb_sysram\../../../src/plf/refip/src/arch/main/ble/arch_main.c\1358</Expression>
         </Bp>
       </Breakpoint>
       <MemoryWindow1>
@@ -234,7 +202,7 @@
       <DebugFlag>
         <trace>0</trace>
         <periodic>0</periodic>
-        <aLwin>0</aLwin>
+        <aLwin>1</aLwin>
         <aCover>0</aCover>
         <aSer1>0</aSer1>
         <aSer2>0</aSer2>

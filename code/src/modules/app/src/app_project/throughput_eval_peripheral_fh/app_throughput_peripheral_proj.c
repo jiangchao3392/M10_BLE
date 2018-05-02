@@ -39,7 +39,7 @@ app_adv_start
 app_adv_func
 
 
-gattc_write_cmd_ind_handler//
+gattc_write_cmd_ind_handler//ÐÞ¸ÄÀ¶ÑÀMACµØÖ·
 
 //ÏêÏ¸ 
 GWI_UART_init
@@ -139,20 +139,29 @@ extern struct metrics global_metrics_tosend;
 unsigned char adv_timer_flag = 0;
 uint8_t uBatRemainPercent = 100,BatBuf[10],uBatRemainPercentMA=0,adbattery_status=0,BatCnt = 0,kai=0;
 		float AD_value1 = 0.000;
-static	uint8_t MotorFlag=0,PowerOff=0;
-static	uint8_t LowPower=0;
+//	static	uint8_t MotorTimCnt=0,MotorFlag=0,LowPower=0,PowerOff=0;
+	uint8_t MotorTimCnt=0,MotorFlag=0,LowPower=0,PowerOff=0;
 extern volatile uint8_t	Power,MotorOn,ZigbFlg,BLE_MAC_Edit;
 extern uint16_t LEDCount,Adc_vbat,iseccnt3,iseccnt4, iseccnt4_flag;//,lkeyDownCount,iSecCount,iSecCnt2,SystemCount,count_present,BeSecTmp[2];
-
+//extern unsigned char cIptWarning,cFunctionType;
+//uint8_t LacalSetting[5]={0xAB,0xBC,0xCD,0xD1,0x05};		//"ABBCCDD105" ²éÑ¯±¾µØµØÖ·
 extern float Adc_div ;
 unsigned char  VIsenseCount;
 unsigned short  VIsense[5],VIsense_Avg;
 unsigned char  VIsense_Avg_send[2];
+extern volatile uint8_t Motor;
+extern volatile uint16_t resetTime;
+extern volatile uint16_t setTime;
+
+bool needStop_flag;
+bool needStopReset;
 int adc_timer_handle(ke_msg_id_t const msgid, 
                            void const *param, 
 													 ke_task_id_t const dest_id, 
 													 ke_task_id_t const src_id)
-{ 
+{
+//    for(uint16_t i = 0 ; i< 10; i++)
+//    {
 	    adc_enable_channel(ADC_CHANNEL_P01);//½«ADCÍ¨µÀÇÐ»»ÖÁÍ¨µÀ0  2017.10.13
 	    uint16_t adc_data = adc_get_sample();
 	     uint8_t i=0;	
@@ -162,21 +171,24 @@ int adc_timer_handle(ke_msg_id_t const msgid,
 	      uBatRemainPercent = 0;			
 	    BatBuf[BatCnt] =  uBatRemainPercent;
 			BatCnt++;		
-
-	    if( adbattery_status==0)	   
-			   {	 
-					 for(i=BatCnt;i<10;i++)
-					 { BatBuf[i] = 0x40; }
-					 uBatRemainPercentMA = fliter(BatBuf,10); //µç³ØµçÁ¿¾ùÖµÂË²¨Î´Íê³ÉÊ±·¢ËÍÊµÊ±Êý¾Ý
-			   }
-			else 	 
-				   uBatRemainPercentMA = fliter(BatBuf,10);
+//     }	
+//	    if( adbattery_status==0)	   
+//		{	 
+//					 for(i=BatCnt;i<10;i++)
+//					 { 
+//                        BatBuf[i] = 0x40;
+//                       }
+			uBatRemainPercentMA = fliter(BatBuf,BatCnt); //µç³ØµçÁ¿¾ùÖµÂË²¨Î´Íê³ÉÊ±·¢ËÍÊµÊ±Êý¾Ý
+//		}
+//		else 	 
+//				   uBatRemainPercentMA = fliter(BatBuf,10);
 			
-			if(BatCnt>=10)
-			{	 
-				adbattery_status=1;
-				BatCnt = 0;							   	
-			}			
+		if(BatCnt>=10)
+		{	 
+			adbattery_status=1;
+            MotorFlag = 1;
+			BatCnt = 0;							   	
+		}			
 			
 			
 			if(uBatRemainPercentMA>100)
@@ -184,6 +196,7 @@ int adc_timer_handle(ke_msg_id_t const msgid,
 
 			if(uBatRemainPercentMA<=0x14) //738.2--3.5(3.48)
 			{
+//			if((adc_data-602.000)<=0)  //3.4v
 				if(uBatRemainPercentMA<=0) //3.45(3.34) 611
 					{				
 						uBatRemainPercentMA = 0;	  			
@@ -200,15 +213,19 @@ int adc_timer_handle(ke_msg_id_t const msgid,
 					}
 							if(PowerOff==1)		
 								Power = 0;										 
-					if(uBatRemainPercentMA<=0)
+//				if((adc_data-602.000)< 0.000)		//3.4
+					if(uBatRemainPercentMA<=0 && Motor == 0)
 						{   		
-							app_timer_set(MOTOR_TIMER, TASK_APP, 20);
-						LowPower = 1;
+                            delay_ms(2000);
+							//app_timer_set(MOTOR_TIMER, TASK_APP, 20);
+                             motor_handleEx();
+                            LowPower = 1;
+                            Motor = 1;
 													
 						}
 
 			 }
-				  
+           
 			 if(MotorFlag == 1)
 			ke_timer_clear(ADC_TIMER,TASK_APP);
 		  else
@@ -240,151 +257,334 @@ int uart_handle(ke_msg_id_t const msgid,
 }
 uint8_t j=0;
 
-/*
-µç»ú¿ØÖÆ³ÌÐò
-*/
-int motor_handle(ke_msg_id_t const msgid, 
-                           void const *param, 
-													 ke_task_id_t const dest_id, 
-													 ke_task_id_t const src_id)
-{ 
-				      adc_enable_channel(ADC_CHANNEL_P02);        //µç»ú¶Â×ªµçÁ÷²ÉÑù£¬   ²ÉÑùµç×è 5.1Å·Ä·
-							if(kai==0){iseccnt3=0;kai=1;}	
-        			VIsense[VIsenseCount] = adc_get_sample(); 
-			        VIsenseCount++;
-							VIsense_Avg= (VIsense[0]+VIsense[1]+VIsense[2])/3;    //3´Î²ÉÑùµÄÆ½¾ùÖµ
-							if(VIsenseCount == 3)					     					   						
-							{VIsenseCount = 0;}		         
-						
 
-							//ÀÏµç»ú°æ±¾		£¬Ñ¹Ëõ
-//							GPIO_SetInactive(GPIO_PORT_1, GPIO_PIN_0);		// MOTOR_IN1----P1_0¸³µÍµçÆ½
-//							GPIO_SetActive(GPIO_PORT_1, GPIO_PIN_1);      // MOTOR_IN2----P1_1¸³¸ßµçÆ½
-							                                              //MOTOR_IN1µÍ£¬ MOTOR_IN2¸ß  µç»úÕýÏò×ª¶¯
-							
-							//ÐÂµç»ú°æ±¾		£¬Ñ¹Ëõ
-							GPIO_SetInactive(GPIO_PORT_1, GPIO_PIN_1);		// MOTOR_IN2----P1_1¸³µÍµçÆ½
-							GPIO_SetActive(GPIO_PORT_1, GPIO_PIN_0);      // MOTOR_IN1----P1_0¸³¸ßµçÆ½
-							                                              //MOTOR_IN2µÍ£¬ MOTOR_IN1¸ß  µç»úÕýÏò×ª¶¯
-							
-							GPIO_SetActive(GPIO_PORT_2, GPIO_PIN_7);	   //µç»ú5VµçÔ´¹©µçÊ¹ÄÜ£¬  ¿ØÖÆAAT1218 EN¶Ë
-							GPIO_SetActive(GPIO_PORT_0, GPIO_PIN_0);	   //µç»ú¹©µç¿ª¹Ø Q6¿ª¹ØÊ¹ÄÜ£¬ ¿ØÖÆ8050µÄB¼«¿ØÖÆ PMOS
-
-				
-						if(VIsense_Avg>=0x0220||iseccnt3>1)                  //ÅÐ¶Ï²ÉÑùµçÑ¹ £¬ 0x015E= 350£¬ »»ËãÎªµçÑ¹Î350*1.2/1024=0.4101 V  Uad= VIsense_Avg*1.2/1024  (1.2V,ÄÚ²¿²Î¿¼µçÑ¹£¬ 1024 Î»10Î»AD²ÉÑù£©
-						{  
-							if(VIsense_Avg>=0x0220)  //Á¦ÏÈµ½                  //ÅÐ¶Ï²ÉÑùµçÑ¹ £¬ 0x0220= 544£¬ 544*1.2/1024=0.6375    ????= 125mA
-							{
-								iseccnt4_flag=1;  //µ½´ïÑ¹ËõÁ¦¼«ÏÞ£¬¿ªÊ¼¼ÆÊ±£¬±£³ÖÁ¦500ms
-								
-								if(iseccnt4>49)  //¼«ÏÞÑ¹ËõÁ¦±£³ÖÊ±¼ä
-								{
-									MotorOn = 0;
-									kai=0;
-									iseccnt4_flag=1;  //µ½´ïÑ¹ËõÁ¦¼«ÏÞ±êÖ¾Î»
-									iseccnt3=0; 
-									iseccnt4=0;							
-									GPIO_SetInactive(GPIO_PORT_2, GPIO_PIN_7);   
-									GPIO_SetInactive(GPIO_PORT_0, GPIO_PIN_0);   		
-									VIsense[0]=0;   
-									VIsense[1]=0;
-									VIsense[2]=0;
-									VIsense[3]=0;
-									VIsense[4]=0;
-									VIsense_Avg=0;
-									VIsenseCount=0;
-									MotorFlag = 0;     
-									app_timer_set(ADC_TIMER, TASK_APP, 20);     
-									ke_timer_clear(MOTOR_TIMER,TASK_APP);	       
-								}
-               else
-								{
-									app_timer_set(MOTOR_TIMER, TASK_APP, 50);
-									MotorFlag = 1;
-								}	
-					 }	
-					 else   //Ê±¼äÏÈµ½
-					 {
-						kai=0;
-						iseccnt3=0;
-						iseccnt4=0;
-						MotorOn = 0; 					
-						GPIO_SetInactive(GPIO_PORT_2, GPIO_PIN_7);     //¹Ø±Õ µç»ú5VµçÔ´¹©µçÊ¹ÄÜ£¬  ¿ØÖÆAAT1218 EN¶Ë
-						GPIO_SetInactive(GPIO_PORT_0, GPIO_PIN_0);    //¹Ø±Õ µç»ú¹©µç¿ª¹Ø Q6¿ª¹ØÊ¹ÄÜ£¬ ¿ØÖÆ8050µÄB¼«¿ØÖÆ PMOS
-						VIsense[0]=0;   
-						VIsense[1]=0;
-						VIsense[2]=0;
-						VIsense[3]=0;
-						VIsense[4]=0;
-						VIsense_Avg=0;
-						VIsenseCount=0;
-						MotorFlag = 0;     
-						app_timer_set(ADC_TIMER, TASK_APP, 20);     
-						ke_timer_clear(MOTOR_TIMER,TASK_APP);	 
-					}	
-        }
-        else  //Ê±¼äºÍÁ¦¶¼Ã»µ½£¬¼ÌÐø×ª¶¯
-        {
-					app_timer_set(MOTOR_TIMER, TASK_APP, 60);   //  Ê±¼äÎ´µ½£¬¼ÌÐøÕý×ª£¬ µÈ´ý500msºó£¬ÔÙ½øÈëº¯ÊýÅÐ¶Ï
-					MotorFlag = 1;               //MOTO FLAGÎª1ÒÔºó ÔÙÒ²²»»á´¥·¢ADCÆô¶¯ÁË
-        }				 
-				
-	return 0;
+void motor_handleEx(void)
+{
+    GPIO_SetInactive(GPIO_PORT_1, GPIO_PIN_1);		// MOTOR_IN2----P1_1¸³µÍµçÆ½
+    GPIO_SetActive(GPIO_PORT_1, GPIO_PIN_0);      // MOTOR_IN1----P1_0¸³¸ßµçÆ½													  //MOTOR_IN2µÍ£¬ MOTOR_IN1¸ß  µç»úÕýÏò×ª¶¯		
+    GPIO_SetActive(GPIO_PORT_2, GPIO_PIN_7);	   //µç»ú5VµçÔ´¹©µçÊ¹ÄÜ£¬  ¿ØÖÆAAT1218 EN¶Ë
+    GPIO_SetActive(GPIO_PORT_0, GPIO_PIN_0);	   //µç»ú¹©µç¿ª¹Ø Q6¿ª¹ØÊ¹ÄÜ£¬ ¿ØÖÆ8050µÄB¼«¿ØÖÆ PMOS
+    setTime=0;
+    VIsense_Avg = 0;	
+    VIsense[0]=0;   
+    VIsense[1]=0;
+    VIsense[2]=0;
+    VIsense[3]=0;
+    VIsense[4]=0;
+    VIsense_Avg=0;
+    VIsenseCount=0;
+    iseccnt4=0;
+    iseccnt4_flag=0;  //µ½´ïÑ¹ËõÁ¦¼«ÏÞ±êÖ¾Î»
+    bool needStop = false;
+	  needStop_flag = false;
+//    while(!needStop)
+//    {
+//        adc_enable_channel(ADC_CHANNEL_P02);        //µç»ú¶Â×ªµçÁ÷²ÉÑù£¬   ²ÉÑùµç×è 5.1Å·Ä·
+//        VIsense[VIsenseCount] = adc_get_sample(); 
+//	    VIsenseCount++;
+//		VIsense_Avg= (VIsense[0]+VIsense[1]+VIsense[2])/3;    //3´Î²ÉÑùµÄÆ½¾ùÖµ
+//		if(VIsenseCount == 3)					     					   						
+//		{VIsenseCount = 0;}		
+//      
+//        if(setTime > 80)
+//        {
+//            needStop = true;
+//        }
+//        if(VIsense_Avg>=0x0220)
+//        {
+//            
+//            iseccnt4_flag=1;  //µ½´ïÑ¹ËõÁ¦¼«ÏÞ£¬¿ªÊ¼¼ÆÊ±£¬±£³ÖÁ¦500ms
+//           
+//        }
+//        if(iseccnt4>60)  //¼«ÏÞÑ¹ËõÁ¦±£³ÖÊ±¼ä
+//        {             
+//              needStop = true;
+//        }
+//    }
+  
+//    MotorOn = 0; 					
+//    GPIO_SetInactive(GPIO_PORT_2, GPIO_PIN_7);     //¹Ø±Õ µç»ú5VµçÔ´¹©µçÊ¹ÄÜ£¬  ¿ØÖÆAAT1218 EN¶Ë
+//    GPIO_SetInactive(GPIO_PORT_0, GPIO_PIN_0);    //¹Ø±Õ µç»ú¹©µç¿ª¹Ø Q6¿ª¹ØÊ¹ÄÜ£¬ ¿ØÖÆ8050µÄB¼«¿ØÖÆ PMOS
+//    MotorFlag = 0;    
 }
 
+int motor_handle(ke_msg_id_t const msgid, 
+                       void const *param, 
+			  ke_task_id_t const dest_id, 
+			   ke_task_id_t const src_id)
+{ 
+    GPIO_SetInactive(GPIO_PORT_1, GPIO_PIN_1);		// MOTOR_IN2----P1_1¸³µÍµçÆ½
+    GPIO_SetActive(GPIO_PORT_1, GPIO_PIN_0);      // MOTOR_IN1----P1_0¸³¸ßµçÆ½													  //MOTOR_IN2µÍ£¬ MOTOR_IN1¸ß  µç»úÕýÏò×ª¶¯		
+    GPIO_SetActive(GPIO_PORT_2, GPIO_PIN_7);	   //µç»ú5VµçÔ´¹©µçÊ¹ÄÜ£¬  ¿ØÖÆAAT1218 EN¶Ë
+    GPIO_SetActive(GPIO_PORT_0, GPIO_PIN_0);	   //µç»ú¹©µç¿ª¹Ø Q6¿ª¹ØÊ¹ÄÜ£¬ ¿ØÖÆ8050µÄB¼«¿ØÖÆ PMOS
+    setTime=0;
+    VIsense_Avg = 0;	
+    VIsense[0]=0;   
+    VIsense[1]=0;
+    VIsense[2]=0;
+    VIsense[3]=0;
+    VIsense[4]=0;
+    VIsense_Avg=0;
+    VIsenseCount=0;
+    iseccnt4=0;
+    iseccnt4_flag=0;  //µ½´ïÑ¹ËõÁ¦¼«ÏÞ±êÖ¾Î»
+    bool needStop = false;
+	  needStop_flag = false;
+    while(!needStop)
+    {
+        adc_enable_channel(ADC_CHANNEL_P02);        //µç»ú¶Â×ªµçÁ÷²ÉÑù£¬   ²ÉÑùµç×è 5.1Å·Ä·
+        VIsense[VIsenseCount] = adc_get_sample(); 
+	    VIsenseCount++;
+		VIsense_Avg= (VIsense[0]+VIsense[1]+VIsense[2])/3;    //3´Î²ÉÑùµÄÆ½¾ùÖµ
+		if(VIsenseCount == 3)					     					   						
+		{VIsenseCount = 0;}		
+      
+        if(setTime > 80)
+        {
+            needStop = true;
+        }
+        if(VIsense_Avg>=0x0220)
+        {
+            
+            iseccnt4_flag=1;  //µ½´ïÑ¹ËõÁ¦¼«ÏÞ£¬¿ªÊ¼¼ÆÊ±£¬±£³ÖÁ¦500ms
+           
+        }
+        if(iseccnt4>60)  //¼«ÏÞÑ¹ËõÁ¦±£³ÖÊ±¼ä
+        {             
+              needStop = true;
+        }
+    }
+  
+    MotorOn = 0; 					
+    GPIO_SetInactive(GPIO_PORT_2, GPIO_PIN_7);     //¹Ø±Õ µç»ú5VµçÔ´¹©µçÊ¹ÄÜ£¬  ¿ØÖÆAAT1218 EN¶Ë
+    GPIO_SetInactive(GPIO_PORT_0, GPIO_PIN_0);    //¹Ø±Õ µç»ú¹©µç¿ª¹Ø Q6¿ª¹ØÊ¹ÄÜ£¬ ¿ØÖÆ8050µÄB¼«¿ØÖÆ PMOS
+    MotorFlag = 0; 
+    ke_timer_clear(MOTOR_TIMER,TASK_APP);	
+}
+
+///*
+//µç»ú¿ØÖÆ³ÌÐò
+//*/
+//int motor_handle(ke_msg_id_t const msgid, 
+//                       void const *param, 
+//			  ke_task_id_t const dest_id, 
+//			   ke_task_id_t const src_id)
+//{ 
+//				adc_enable_channel(ADC_CHANNEL_P02);        //µç»ú¶Â×ªµçÁ÷²ÉÑù£¬   ²ÉÑùµç×è 5.1Å·Ä·
+//				if(kai==0){iseccnt3=0;kai=1;}	
+//        		VIsense[VIsenseCount] = adc_get_sample(); 
+//			    VIsenseCount++;
+//				VIsense_Avg= (VIsense[0]+VIsense[1]+VIsense[2])/3;    //3´Î²ÉÑùµÄÆ½¾ùÖµ
+//				if(VIsenseCount == 3)					     					   						
+//				{VIsenseCount = 0;}		         
+//				
+
+////ÀÏµç»ú°æ±¾		£¬Ñ¹Ëõ
+////				GPIO_SetInactive(GPIO_PORT_1, GPIO_PIN_0);		// MOTOR_IN1----P1_0¸³µÍµçÆ½
+////				GPIO_SetActive(GPIO_PORT_1, GPIO_PIN_1);      // MOTOR_IN2----P1_1¸³¸ßµçÆ½
+//																  //MOTOR_IN1µÍ£¬ MOTOR_IN2¸ß  µç»úÕýÏò×ª¶¯
+//					
+//			//ÐÂµç»ú°æ±¾		£¬Ñ¹Ëõ
+//			GPIO_SetInactive(GPIO_PORT_1, GPIO_PIN_1);		// MOTOR_IN2----P1_1¸³µÍµçÆ½
+//			GPIO_SetActive(GPIO_PORT_1, GPIO_PIN_0);      // MOTOR_IN1----P1_0¸³¸ßµçÆ½
+//														  //MOTOR_IN2µÍ£¬ MOTOR_IN1¸ß  µç»úÕýÏò×ª¶¯
+//			
+//			GPIO_SetActive(GPIO_PORT_2, GPIO_PIN_7);	   //µç»ú5VµçÔ´¹©µçÊ¹ÄÜ£¬  ¿ØÖÆAAT1218 EN¶Ë
+//			GPIO_SetActive(GPIO_PORT_0, GPIO_PIN_0);	   //µç»ú¹©µç¿ª¹Ø Q6¿ª¹ØÊ¹ÄÜ£¬ ¿ØÖÆ8050µÄB¼«¿ØÖÆ PMOS
+
+//		
+////			if(VIsense_Avg>=0x0220||iseccnt3>1)                  //ÅÐ¶Ï²ÉÑùµçÑ¹ £¬ 0x015E= 350£¬ »»ËãÎªµçÑ¹Î350*1.2/1024=0.4101 V  Uad= VIsense_Avg*1.2/1024  (1.2V,ÄÚ²¿²Î¿¼µçÑ¹£¬ 1024 Î»10Î»AD²ÉÑù£©
+////			{  
+////				if(VIsense_Avg>=0x0220)  //Á¦ÏÈµ½                  //ÅÐ¶Ï²ÉÑùµçÑ¹ £¬ 0x0220= 544£¬ 544*1.2/1024=0.6375    ????= 125mA
+////				{
+////					iseccnt4_flag=1;  //µ½´ïÑ¹ËõÁ¦¼«ÏÞ£¬¿ªÊ¼¼ÆÊ±£¬±£³ÖÁ¦500ms
+////					
+////					if(iseccnt4>2)  //¼«ÏÞÑ¹ËõÁ¦±£³ÖÊ±¼ä
+////					{
+////						MotorOn = 0;
+////						kai=0;
+////						iseccnt4_flag=1;  //µ½´ïÑ¹ËõÁ¦¼«ÏÞ±êÖ¾Î»
+////						iseccnt3=0; 
+////						iseccnt4=0;							
+////						GPIO_SetInactive(GPIO_PORT_2, GPIO_PIN_7);   
+////						GPIO_SetInactive(GPIO_PORT_0, GPIO_PIN_0);   		
+////						VIsense[0]=0;   
+////						VIsense[1]=0;
+////						VIsense[2]=0;
+////						VIsense[3]=0;
+////						VIsense[4]=0;
+////						VIsense_Avg=0;
+////						VIsenseCount=0;
+////						MotorFlag = 0;     
+//////						app_timer_set(ADC_TIMER, TASK_APP, 20);     
+////						ke_timer_clear(MOTOR_TIMER,TASK_APP);	       
+////					}
+////					else
+////					{
+////						app_timer_set(MOTOR_TIMER, TASK_APP, 50);
+////						MotorFlag = 1;
+////					}	
+////				 }	
+//				 if(iseccnt3>1)  //Ê±¼äÏÈµ½
+//				 {
+//					kai=0;
+//					iseccnt3=0;
+//					iseccnt4=0;
+//					MotorOn = 0; 					
+//					GPIO_SetInactive(GPIO_PORT_2, GPIO_PIN_7);     //¹Ø±Õ µç»ú5VµçÔ´¹©µçÊ¹ÄÜ£¬  ¿ØÖÆAAT1218 EN¶Ë
+//					GPIO_SetInactive(GPIO_PORT_0, GPIO_PIN_0);    //¹Ø±Õ µç»ú¹©µç¿ª¹Ø Q6¿ª¹ØÊ¹ÄÜ£¬ ¿ØÖÆ8050µÄB¼«¿ØÖÆ PMOS
+//					VIsense[0]=0;   
+//					VIsense[1]=0;
+//					VIsense[2]=0;
+//					VIsense[3]=0;
+//					VIsense[4]=0;
+//					VIsense_Avg=0;
+//					VIsenseCount=0;
+//					MotorFlag = 0;     
+////					app_timer_set(ADC_TIMER, TASK_APP, 20);     
+//					ke_timer_clear(MOTOR_TIMER,TASK_APP);	 
+//				}	
+////        }
+//        else  //Ê±¼äºÍÁ¦¶¼Ã»µ½£¬¼ÌÐø×ª¶¯
+//        {
+//					app_timer_set(MOTOR_TIMER, TASK_APP, 60);   //  Ê±¼äÎ´µ½£¬¼ÌÐøÕý×ª£¬ µÈ´ý500msºó£¬ÔÙ½øÈëº¯ÊýÅÐ¶Ï
+//					MotorFlag = 1;               //MOTO FLAGÎª1ÒÔºó ÔÙÒ²²»»á´¥·¢ADCÆô¶¯ÁË
+//        }				 
+//				
+//	return 0;
+//}
+void motor_reset_handleEx(void)
+{
+    GPIO_SetInactive(GPIO_PORT_1, GPIO_PIN_0);	        // MOTOR_IN1----P1_0¸³µÍµçÆ½
+    GPIO_SetActive(GPIO_PORT_1, GPIO_PIN_1);            // MOTOR_IN2----P1_1¸³¸ßµçÆ½
+                                                                //MOTOR_IN2¸ß£¬ MOTOR_IN1µÍ  µç»ú·´Ïò×ª¶¯																
+	GPIO_SetActive(GPIO_PORT_0, GPIO_PIN_0);	          //µç»ú¹©µç¿ª¹Ø Q6¿ª¹ØÊ¹ÄÜ£¬P0_0¿ØÖÆ8050µÄB¼«¿ØÖÆ PMOS 
+	GPIO_SetActive(GPIO_PORT_2, GPIO_PIN_7);	   				//µç»ú5VµçÔ´¹©µçÊ¹ÄÜ£¬  P2_7¿ØÖÆAAT1218 EN¶Ë	
+    resetTime=0;
+    needStopReset = false;
+    while(resetTime < 3)
+    {
+        
+    }
+    MotorOn = 1;		   //jc 2018.3.1¸ü¸ÄÎª1£¬Ô­À´Îª0£¬  ÅÐ¶ÏÒÀ¾ÝÎª  µç»ú¸´Î»±êÊ¶ MotorOn=1£¬±êÊ¶¸´Î»			
+    GPIO_SetInactive(GPIO_PORT_2, GPIO_PIN_7);    //µç»ú5VµçÔ´¹©µç ,½ûÖ¹Ê¹ÄÜ£¬  P2_7¿ØÖÆAAT1218 EN¶Ë	
+    GPIO_SetInactive(GPIO_PORT_0, GPIO_PIN_0);    //µç»ú¹©µç¿ª¹Ø Q6¿ª¹Ø½ûÖ¹Ê¹ÄÜ£¬P0_0¿ØÖÆ8050µÄB¼«¿ØÖÆ PMOS 	 		
+    VIsense[0]=0;  
+    VIsense[1]=0;
+    VIsense[2]=0;
+    VIsense[3]=0;
+    VIsense[4]=0;
+    VIsense_Avg=0;
+    VIsenseCount=0;
+    MotorFlag = 0;
+    kai = 0;
+    resetTime = 0;
+}
+
+
+
+//int motor_reset_handle(ke_msg_id_t const msgid,
+//	                         void const *param,
+//			        ke_task_id_t const dest_id,
+//					 ke_task_id_t const src_id)
+//{
+//    GPIO_SetInactive(GPIO_PORT_1, GPIO_PIN_0);	        // MOTOR_IN1----P1_0¸³µÍµçÆ½
+//    GPIO_SetActive(GPIO_PORT_1, GPIO_PIN_1);            // MOTOR_IN2----P1_1¸³¸ßµçÆ½
+//                                                                //MOTOR_IN2¸ß£¬ MOTOR_IN1µÍ  µç»ú·´Ïò×ª¶¯																
+//	GPIO_SetActive(GPIO_PORT_0, GPIO_PIN_0);	          //µç»ú¹©µç¿ª¹Ø Q6¿ª¹ØÊ¹ÄÜ£¬P0_0¿ØÖÆ8050µÄB¼«¿ØÖÆ PMOS 
+//	GPIO_SetActive(GPIO_PORT_2, GPIO_PIN_7);	   				//µç»ú5VµçÔ´¹©µçÊ¹ÄÜ£¬  P2_7¿ØÖÆAAT1218 EN¶Ë	
+//    resetTime=0;
+//    while(resetTime < 2)
+//    {
+//        
+//    }
+//    MotorOn = 1;		   //jc 2018.3.1¸ü¸ÄÎª1£¬Ô­À´Îª0£¬  ÅÐ¶ÏÒÀ¾ÝÎª  µç»ú¸´Î»±êÊ¶ MotorOn=1£¬±êÊ¶¸´Î»			
+//    GPIO_SetInactive(GPIO_PORT_2, GPIO_PIN_7);    //µç»ú5VµçÔ´¹©µç ,½ûÖ¹Ê¹ÄÜ£¬  P2_7¿ØÖÆAAT1218 EN¶Ë	
+//    GPIO_SetInactive(GPIO_PORT_0, GPIO_PIN_0);    //µç»ú¹©µç¿ª¹Ø Q6¿ª¹Ø½ûÖ¹Ê¹ÄÜ£¬P0_0¿ØÖÆ8050µÄB¼«¿ØÖÆ PMOS 	 		
+//    VIsense[0]=0;  
+//    VIsense[1]=0;
+//    VIsense[2]=0;
+//    VIsense[3]=0;
+//    VIsense[4]=0;
+//    VIsense_Avg=0;
+//    VIsenseCount=0;
+//    MotorFlag = 0;
+//    kai = 0;
+//    resetTime = 0;
+//    ke_timer_clear(MOTOR_RESET,TASK_APP);	
+//}
 /*
 µç»ú ¸´Î»¿ØÖÆ³ÌÐò
 */
 
 uint8_t ResetCnt=0;
-int motor_reset_handle(ke_msg_id_t const msgid, 
-                           void const *param, 
-													 ke_task_id_t const dest_id, 
-													 ke_task_id_t const src_id)
+int motor_reset_handle(ke_msg_id_t const msgid,
+	                         void const *param,
+			        ke_task_id_t const dest_id,
+					 ke_task_id_t const src_id)
 {
-				      adc_enable_channel(ADC_CHANNEL_P02);      
-        			VIsense[VIsenseCount] = adc_get_sample(); 
-			        VIsenseCount++;
-							VIsense_Avg= (VIsense[0]+VIsense[1]+VIsense[2])/3; 
-              	if(VIsenseCount == 3)					     					   						
-			          {VIsenseCount = 0;}		
-	            
-								//ÀÏµç»ú°æ±¾		£¬ÊÍ·Å
-//							GPIO_SetInactive(GPIO_PORT_1, GPIO_PIN_1);	        // MOTOR_IN2----P1_1¸³µÍµçÆ½
-//            	GPIO_SetActive(GPIO_PORT_1, GPIO_PIN_0);            // MOTOR_IN1----P1_0¸³¸ßµçÆ½
+//     if(kai==0){resetTime=0;kai=1;}	 
+		adc_enable_channel(ADC_CHANNEL_P02);      
+        VIsense[VIsenseCount] = adc_get_sample(); 
+		VIsenseCount++;
+		VIsense_Avg= (VIsense[0]+VIsense[1]+VIsense[2])/3; 
+        if(VIsenseCount == 3)					     					   						
+		{VIsenseCount = 0;}		
+	     
+//ÀÏµç»ú°æ±¾		£¬ÊÍ·Å
+//	    GPIO_SetInactive(GPIO_PORT_1, GPIO_PIN_1);	        // MOTOR_IN2----P1_1¸³µÍµçÆ½
+//      GPIO_SetActive(GPIO_PORT_1, GPIO_PIN_0);            // MOTOR_IN1----P1_0¸³¸ßµçÆ½
                                                                 //MOTOR_IN1¸ß£¬ MOTOR_IN2µÍ  µç»ú·´Ïò×ª¶¯ 
-                //ÐÂµç»ú°æ±¾		£¬ÊÍ·Å
-              GPIO_SetInactive(GPIO_PORT_1, GPIO_PIN_0);	        // MOTOR_IN1----P1_0¸³µÍµçÆ½
-            	GPIO_SetActive(GPIO_PORT_1, GPIO_PIN_1);            // MOTOR_IN2----P1_1¸³¸ßµçÆ½
+//ÐÂµç»ú°æ±¾		£¬ÊÍ·Å
+        GPIO_SetInactive(GPIO_PORT_1, GPIO_PIN_0);	        // MOTOR_IN1----P1_0¸³µÍµçÆ½
+        GPIO_SetActive(GPIO_PORT_1, GPIO_PIN_1);            // MOTOR_IN2----P1_1¸³¸ßµçÆ½
                                                                 //MOTOR_IN2¸ß£¬ MOTOR_IN1µÍ  µç»ú·´Ïò×ª¶¯								
 								
-						  GPIO_SetActive(GPIO_PORT_0, GPIO_PIN_0);	          //µç»ú¹©µç¿ª¹Ø Q6¿ª¹ØÊ¹ÄÜ£¬P0_0¿ØÖÆ8050µÄB¼«¿ØÖÆ PMOS 
-	            GPIO_SetActive(GPIO_PORT_2, GPIO_PIN_7);	   				//µç»ú5VµçÔ´¹©µçÊ¹ÄÜ£¬  P2_7¿ØÖÆAAT1218 EN¶Ë		
+		GPIO_SetActive(GPIO_PORT_0, GPIO_PIN_0);	          //µç»ú¹©µç¿ª¹Ø Q6¿ª¹ØÊ¹ÄÜ£¬P0_0¿ØÖÆ8050µÄB¼«¿ØÖÆ PMOS 
+	    GPIO_SetActive(GPIO_PORT_2, GPIO_PIN_7);	   				//µç»ú5VµçÔ´¹©µçÊ¹ÄÜ£¬  P2_7¿ØÖÆAAT1218 EN¶Ë		
 				
-		//		if(VIsense_Avg>=0x00C8)                            //ÅÐ¶Ï²ÉÑùµçÑ¹ £¬ 0x00C8=200 £¬   
+//		if(VIsense_Avg>=0x00C8)                            //ÅÐ¶Ï²ÉÑùµçÑ¹ £¬ 0x00C8=200 £¬   
 				
 								
-				//if(VIsense_Avg>=0x0064)                            //ÅÐ¶Ï²ÉÑùµçÑ¹ £¬ 0x0064=100  »»ËãÎªµçÑ¹100*1.2/1024=0.117V  Uad= VIsense_Avg*1.2/1024  (1.2V,ÄÚ²¿²Î¿¼µçÑ¹£¬ 1024 Î»10Î»AD²ÉÑù£©¬£¬ 
-				if(VIsense_Avg>=0x0096)           // 0x0096=150   150*1.2/1024=0.1758V   0.1758/5.1= 34.47mA
-				{  
-          MotorOn = 0; 					
-					GPIO_SetInactive(GPIO_PORT_2, GPIO_PIN_7);    //µç»ú5VµçÔ´¹©µç ,½ûÖ¹Ê¹ÄÜ£¬  P2_7¿ØÖÆAAT1218 EN¶Ë	
-					GPIO_SetInactive(GPIO_PORT_0, GPIO_PIN_0);    //µç»ú¹©µç¿ª¹Ø Q6¿ª¹Ø½ûÖ¹Ê¹ÄÜ£¬P0_0¿ØÖÆ8050µÄB¼«¿ØÖÆ PMOS 	 		
-				  
-					VIsense[0]=0;  
-					VIsense[1]=0;
-					VIsense[2]=0;
-					VIsense[3]=0;
-					VIsense[4]=0;
-					VIsense_Avg=0;
-					VIsenseCount=0;
-					MotorFlag = 0;
-					app_timer_set(ADC_TIMER, TASK_APP, 20);     
-					ke_timer_clear(MOTOR_RESET,TASK_APP);	      			
-        }					
-		    else
-        { app_timer_set(MOTOR_RESET, TASK_APP, 50);
-					MotorFlag = 1;
+//      if(VIsense_Avg>=0x0064)                            //ÅÐ¶Ï²ÉÑùµçÑ¹ £¬ 0x0064=100  »»ËãÎªµçÑ¹100*1.2/1024=0.117V  Uad= VIsense_Avg*1.2/1024  (1.2V,ÄÚ²¿²Î¿¼µçÑ¹£¬ 1024 Î»10Î»AD²ÉÑù£©¬£¬ 
+		if(VIsense_Avg>=0x0096)           // 0x0096=150   150*1.2/1024=0.1758V   0.1758/5.1= 34.47mA
+		{  
+//          MotorOn = 0; 	
+            MotorOn = 1;		   //jc 2018.3.1¸ü¸ÄÎª1£¬Ô­À´Îª0£¬  ÅÐ¶ÏÒÀ¾ÝÎª  µç»ú¸´Î»±êÊ¶ MotorOn=1£¬±êÊ¶¸´Î»			
+			GPIO_SetInactive(GPIO_PORT_2, GPIO_PIN_7);    //µç»ú5VµçÔ´¹©µç ,½ûÖ¹Ê¹ÄÜ£¬  P2_7¿ØÖÆAAT1218 EN¶Ë	
+			GPIO_SetInactive(GPIO_PORT_0, GPIO_PIN_0);    //µç»ú¹©µç¿ª¹Ø Q6¿ª¹Ø½ûÖ¹Ê¹ÄÜ£¬P0_0¿ØÖÆ8050µÄB¼«¿ØÖÆ PMOS 	 		
+			VIsense[0]=0;  
+			VIsense[1]=0;
+			VIsense[2]=0;
+			VIsense[3]=0;
+			VIsense[4]=0;
+			VIsense_Avg=0;
+			VIsenseCount=0;
+			MotorFlag = 0;     
+			ke_timer_clear(MOTOR_RESET,TASK_APP);	      			
+        }
+//        if(resetTime > 5)
+//        {
+//            MotorOn = 1;		   //jc 2018.3.1¸ü¸ÄÎª1£¬Ô­À´Îª0£¬  ÅÐ¶ÏÒÀ¾ÝÎª  µç»ú¸´Î»±êÊ¶ MotorOn=1£¬±êÊ¶¸´Î»			
+//			GPIO_SetInactive(GPIO_PORT_2, GPIO_PIN_7);    //µç»ú5VµçÔ´¹©µç ,½ûÖ¹Ê¹ÄÜ£¬  P2_7¿ØÖÆAAT1218 EN¶Ë	
+//			GPIO_SetInactive(GPIO_PORT_0, GPIO_PIN_0);    //µç»ú¹©µç¿ª¹Ø Q6¿ª¹Ø½ûÖ¹Ê¹ÄÜ£¬P0_0¿ØÖÆ8050µÄB¼«¿ØÖÆ PMOS 	 		
+//			VIsense[0]=0;  
+//			VIsense[1]=0;
+//			VIsense[2]=0;
+//			VIsense[3]=0;
+//			VIsense[4]=0;
+//			VIsense_Avg=0;
+//			VIsenseCount=0;
+//			MotorFlag = 0;
+//            kai = 0;
+//            resetTime = 0;
+////			app_timer_set(ADC_TIMER, TASK_APP, 20);     
+//			ke_timer_clear(MOTOR_RESET,TASK_APP);	
+//        }
+		else
+        { 
+            app_timer_set(MOTOR_RESET, TASK_APP, 50);
+			MotorFlag = 1;
         }		
    return 0;
 
@@ -403,7 +603,9 @@ int key_dispose_handle(ke_msg_id_t const msgid,
                            void const *param, 
 													 ke_task_id_t const dest_id, 
 													 ke_task_id_t const src_id)
-{	
+{
+	uint8_t j=0;
+	
 	return 0;
 }
 
@@ -552,8 +754,8 @@ void app_connection_func(struct gapc_connection_req_ind const *param)
 */
 void app_adv_func(struct gapm_start_advertise_cmd *cmd)
 {
-
-		 app_timer_set(MOTOR_RESET, TASK_APP, 50);
+    printf_string("\n app_adv_func()----app_timer_set(MOTOR_RESET ");	
+//		app_timer_set(MOTOR_RESET, TASK_APP, 50);        //  20180322--JCÆÁ±Î £¬ ·ÅÖÃ¶Ï¿ªÀ¶ÑÀ¶¯×÷
 		
 		#if (M10DEBUG)
      printf_string("app_adv_func\n\r");
@@ -653,7 +855,7 @@ void app_adv_func(struct gapm_start_advertise_cmd *cmd)
 
 void app_disconnect_func(ke_task_id_t task_id, struct gapc_disconnect_ind const *param)
 {
-    printf_string("app_disconnect_func\n\r");
+    printf_string("\r app_disconnect_func\n\r");
     uint8_t state = ke_state_get(task_id);
     
 #if BLE_BATT_SERVER

@@ -70,6 +70,7 @@ void printf_byte(int a){		  // print a Byte in hex format
 }
 
 
+
  /**
  ****************************************************************************************
  * @brief prints a (16-bit) half-word in hex format using printf_byte

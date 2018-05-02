@@ -178,7 +178,8 @@ void app_connect_confirm(uint8_t auth)
     cfm->authorize = GAP_AUTHZ_NOT_SET;
     // Send the message
     ke_msg_send(cfm);
-			  M10_Master_conready=1;		
+		printf_string("\n\r BLE start connect lian jie\n");
+		M10_Master_conready=1;		
 		uart_send_byte(0x4F);
     uart_send_byte(0x4B); //OK ASCII
 	  uart_send_byte(0xFC); //·µ»Ø¿ØÖÆÖ¸Áî

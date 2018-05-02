@@ -107,8 +107,8 @@ struct arch_sleep_env_tag
 
 typedef enum
 {
-	mode_active = 0,
-	mode_idle,
+	mode_active = 0,    //活跃模式  
+	mode_idle,          //空闲模式
 	mode_ext_sleep,
 	mode_deep_sleep,
 	mode_sleeping,

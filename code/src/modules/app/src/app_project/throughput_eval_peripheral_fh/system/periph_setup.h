@@ -169,11 +169,4 @@ void ZigBee_Setting(void);
 
 #define FUNC_DROP 0xAA
 #define FUNC_KEY  0xBB
-#define FUNC_ALARM 0xCC
-#define WARNING_NORMAL 0x00
-#define WARNING_PREALARM 0x33
-#define WARNING_END 0x55
-#define WARNING_TERMINAL 0xDD
-#define WARNING_UNCOVER 0xEE
-#define SEND_NORMAL 0xAA
-#define SEND_END 0x55
+

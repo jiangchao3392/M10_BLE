@@ -131,4 +131,7 @@
 .\out\arch_main.o: .\..\..\..\src\ip\ble\ll\src\rwble\rwble.h
 .\out\arch_main.o: .\..\..\..\src\modules\rf\api\rf_580.h
 .\out\arch_main.o: .\..\..\..\src\dialog\include\reg_ble_em_cs.h
+.\out\arch_main.o: .\..\..\..\src\plf\refip\src\driver\adc\adc.h
+.\out\arch_main.o: ..\..\..\src\plf\refip\src\driver\pwm\pwm.h
+.\out\arch_main.o: .\..\..\..\src\modules\app\src\app_project\throughput_eval_peripheral_fh\system\periph_setup.h
 .\out\arch_main.o: .\..\..\..\src\modules\gtl\api\gtl.h

@@ -49,11 +49,11 @@ struct nvds_data_struct nvds_data_storage __attribute__((section("nvds_data_stor
     .NVDS_TAG_SECURITY_ENABLE               = 1,
     .NVDS_TAG_APP_BLE_ADV_DATA              = "\x1A\xFF\xD2\x00\x02\x15\x58\x5C\xDE\x93\x1B\x01\x42\xCC\x9A\x13\x25\x00\x9B\xED\xC6\x5E\x00\x00\x00\x00\xC5",
     .NVDS_TAG_APP_BLE_SCAN_RESP_DATA        = "\x09\xFF\x00\x60\x52\x57\x2D\x42\x4C\x45",
-    .NVDS_TAG_DEVICE_NAME                   = "DA14583",
+    .NVDS_TAG_DEVICE_NAME                   = "M10_1",
 //    .NVDS_TAG_BD_ADDRESS                    = {0x06, 0x00, 0x00, 0xCA, 0xEA, 0x80},
     .ADV_DATA_TAG_LEN                       = 27,
     .SCAN_RESP_DATA_TAG_LEN                 = 10,	
-    .DEVICE_NAME_TAG_LEN                    = 7,
+    .DEVICE_NAME_TAG_LEN                    = 5,
     /// Default Channel Assessment Timer duration (20s - Multiple of 10ms)
     .NVDS_TAG_BLE_CA_TIMER_DUR              = 2000,
     /// Default Channel Reassessment Timer duration (Multiple of Channel Assessment Timer duration)

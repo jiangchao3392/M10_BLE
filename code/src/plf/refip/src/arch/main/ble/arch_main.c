@@ -94,7 +94,10 @@
 #include "gtl_task.h"
 #include "nvds.h"        // nvds definitions
 
-
+#include "adc.h"
+#include "pwm.h"
+#include "co_math.h" 
+#include "periph_setup.h"
 
 #ifdef CFG_PRINTF
 #include "app_console.h"
@@ -142,7 +145,7 @@ extern void my_llc_ch_map_req_ind (uint16_t conhdl, struct llcp_channel_map_req 
 struct gapm_start_advertise_cmd;
 extern uint8_t patched_gapm_adv_op_sanity(struct gapm_start_advertise_cmd *adv);
 																																																				
-
+extern bool needStopReset;
 /*
  * STRUCTURE DEFINITIONS
  ****************************************************************************************
@@ -174,6 +177,7 @@ extern uint32_t error;              /// Variable storing the reason of platform 
 extern uint32_t last_temp_time;     /// time of last temperature count measurement
 extern uint16_t last_temp_count;    /// temperature counter
 extern uint32_t lp_clk_sel;
+extern uint16_t ADCcount;
 
 /// Reserve space for Exchange Memory, this section is linked first in the section "exchange_mem_case"
 extern volatile uint8 dummy[];
@@ -600,78 +604,58 @@ static __inline void  otp_prepare(uint32 code_size)
 extern void set_system_clocks(void);
 extern void init_pwr_and_clk_ble(void);
 extern void rf_workaround_init(void);
- 
-extern uint16_t value0;													//Á½ÒºµÎ¼ä¸ôÊ±¼ä¼ÆÊ±
-extern uint16_t DropINT; 												//¼ì²âµ½ÒºµÎ±êÊ¶
-extern uint16_t count_present; 											//µ±Ç°ÒºµÎ¼ÆÊý
-volatile uint8_t Activeflag = 0; 										//Èí¼þÊÇ·ñ¿ªÆô 0-Î´¿ªÆô 1-¿ªÆô
-volatile uint8_t alarm_signal=0; 										//±¨¾¯ÐÅºÅ 0-Õý³£ 1-Òì³£
-volatile uint8_t Power=1; 			 									//µçÔ´ÉÏµç±êÖ¾ 1-ÉÏµç 0-¶Ïµç
-volatile uint8_t MotorOn=1;      										//µç»úËøËÀ±êÖ¾ 0-ËøËÀ 1-Î´ËøËÀ
-volatile uint8_t Motor = 1;                                             //                                          
-volatile uint8_t clamp=0;                                               //¿ª¸Ç±êÖ¾ 0-Î´¿ª¸Ç 1-ÒÑ¿ª¸Ç                                                                                         
-volatile uint8_t keypress=0;                                            //¸´Î»¼üÊÇ·ñ°´ÏÂ 0-Î´°´ÏÂ 1-°´ÏÂ
-volatile uint8_t senddata = 0;                                          //ÊÇ·ñ·¢ËÍÊý¾Ý 1-·¢ËÍ 0-²»·¢ËÍ
-volatile uint8_t speed_five_status=0;                                   //ÊÇ·ñÒÑ¼ì²â5µÎ 1-ÊÇ 0-·ñ
-volatile uint8_t first_count_status=1;                                  //ÊÇ·ñÎªÉÏµçºóÊ×µÎ 1-ÊÇ 0-·ñ
-volatile uint8_t first55_flag=2;                                        //
-volatile uint8_t halt=0;                                                //
-volatile uint8_t ResetFlg = 0;                                          //°´¼ü¸´Î»±êÖ¾ 0-Î´¸´Î» 1-ÒÑ¸´Î»
-uint8_t iTempMIN=0;                                                     //ÉÏ´Î·¢ËÍµÄµÎÒºËÙ¶È
-uint8_t txBuffer[32];                                                   //´æ´¢ÊäÒº×´Ì¬Êý×é
-uint8_t Key1 = 0;                                                       //¶Ì°´¸´Î»¼ü±êÖ¾ 1-¶Ì°´ 0-Î´¶Ì°´
-uint8_t Keylong=0;                                                      //³¤°´¸´Î»¼ü±êÖ¾ 1-³¤°´ 0-Î´³¤°´
-uint8_t SwordClose=0;                                                   //
-uint8_t rf_send_sta=SEND_END;                                               //·¢ËÍÊý¾ÝÄÚÈÝ aa-Õý³£ÊäÒº 55-ÊäÒºÍê±Ï±¨¾¯
-uint8_t RFOFF=0;                                                        //·¢ËÍ¼ä¸ô¼ÆÊý
-uint8_t Keylonglong=0;                                                  //ÊÇ·ñ¶à´Î¸´Î» 1-ÊÇ 0-·ñ
-uint8_t KeylongCount=0;                                                 //¸´Î»´ÎÊý
-uint8_t SetFlag = 0;                                                    //
-uint8_t ZigbFlg=0;	
-unsigned char cIptWarning = WARNING_NORMAL; 	                        //±¨¾¯ÀàÐÍ 00-Õý³£Ý”Òº  33-Ô¤±¨¾¯ 55-Ý”ÒºÍê®…  	DD-ÒâÍâÖÐÖ¹ EE-¿ª¸ÇÊäÒº
-unsigned char cFunctionType = FUNC_DROP;                                //ÐÅºÅÀàÐÍ FUNC_DROP-Õý³£ÊäÒº  FUNC_KEY-¸´Î»°´¼ü 0xCC-¹Ø»úÔ¤¾¯
-unsigned char avg_value=1;                                              //Æ½¾ùµÎËÙ
-extern uint16_t iSecCount;                                              //ÊäÒº¹ÜÍÑÀëÊ±¼ä¼ÆÊý
-extern uint16_t iSecCnt2;                                               //¿ª¸ÇÊ±¼ä
-extern uint16_t LEDCount;                                               //LEDµÆÉÁË¸´ÎÊý
-extern uint16_t SystemCount;                                            //Î´¼ì²âµ½ÒºµÎÏµÍ³¼ÆÊ±¼ÆÊý
-extern uint16_t opencount;                                              //¿ª¸ÇÊäÒº¼ÆÊ±¼ÆÊý
-extern uint8_t alarm_temp;
-extern uint8_t alarm_sta;                                               //ÏìÉù±¨¾¯×´Ì¬
-extern uint8_t uBatRemainPercentMA;                                     //µç³ØµçÁ¿
-uint16_t txCount=0;                                                     //À¶ÑÀ·¢ËÍÊý¾Ý´ÎÊý
-uint16_t BeSecTmp[2] = {0,0};                                           //·äÃù´ÎÊýÅÐ¶ÏÊý×é                                             
-volatile	uint16_t lkeyDownCount=0;		                            //¸´Î»¼ü°´ÏÂ´ÎÊý
 
-static uint8_t i;
-static uint16_t value1 = 0;
-static uint16_t value = 0;
-static uint16_t value2 = 0;
-static uint16_t warntime=15;                                            //warntime-±¨¾¯Ê±¼ä
-static	uint8_t maBuffer[20],iMaCount = 0;	
-static	uint64_t unique_id;
-static	uint8_t FLASHid[8];
+extern uint16_t value0,DropINT,count_present;
+volatile uint8_t Activeflag = 0,alarm_signal=0,Power=1,MotorOn=1,Motor = 1,Retry = 0,clamp=0,Sleep=0,keypress=0;  //valuecount=0,,motorflag=0,
+volatile uint8_t senddata = 0,speed_five_status=0,speed_right_status=0,first_count_status=1,first55_flag=2,halt=0,ResetFlg = 0;
+uint8_t iTempMIN=0,iTempMAX=255, txBuffer[32],Key1 = 0,Keylong=0,SwordClose=0,rf_send_sta=0x55,RFOFF=0,Keylonglong=0,KeylongCount=0,SetFlag = 0,ZigbFlg=0;	
+unsigned char cIptWarning = 00; 	//0-Õý³£Ý”Òº  55-Ý”ÒºÍê®…  	DD-ÒâÍâÖÐÖ¹
+unsigned char cFunctionType = FUNC_DROP,avg_value=1;
+extern uint16_t iSecCount,iSecCnt2,iWaringSend,LEDCount,SystemCount,opencount;
+extern uint8_t alarm_temp,alarm_sta,uBatRemainPercentMA;
+extern uint8_t ResetCnt;
+uint16_t txCount=0,BeSecTmp[2] = {0,0};
+//extern uint8_t timer[10];
+volatile	uint16_t lkeyDownCount=0;
+
+
+//ÒÔÏÂ  jc 2018.4.28Ìí¼Ó
+extern bool needStop_flag;
+extern uint16_t iseccnt4_flag ;
+extern	unsigned char  VIsenseCount;
+extern unsigned short  VIsense[5],VIsense_Avg;
+//extern volatile uint16_t resetTime =0, setTime = 0;     //¸´Î»Ê±¼ä¼ÆÊý
+extern unsigned char  VIsenseCount;
+extern uint16_t iseccnt4;
+extern volatile uint16_t resetTime;
+extern volatile uint16_t setTime;
+extern uint8_t MotorFlag;
+//ÒÔÉÏ
 
 #pragma pack (1)
 typedef struct
 {	
-	unsigned short	Zigbee_ADD;	    //zigbee±¾µØµØÖ·
- 	unsigned char   deviceType;	    //Êý¾ÝÀàÐÍ
-	unsigned short	RFCount;        //µ±Ç°Êý¾Ý°ü	
-	unsigned short  cnt;            //Í³¼ÆÖµ£¬µ±Ç°ÊÇµÚ¼¸µÎ
-	unsigned char   Data_length;	//Êý¾Ý³¤¶È
-	unsigned char   rchPower;       //µç³ØÊ£ÓàµçÁ¿  rchPower%
-	unsigned char   cSpeedDrop;     //µÎËÙ  µ¥Î» µÎ/·Ö
-	unsigned char   cAlarm;         //±¨¾¯ÐÅºÅ
-	unsigned char   ID0;     		//Î¨Ò»ID
-	unsigned char   ID1;   			//  
-	unsigned char   ID2; 			//    
-	unsigned char   ID3;   			//  
-	unsigned char   ID4;  			//   
-	unsigned char   ID5;     		//
-	unsigned char   ID6;			//
-	unsigned char   ID7;			//
-	unsigned char   verify;         //±£Áô×Ö		
+	unsigned short	Zigbee_ADD;	   //zigbee±¾µØµØÖ·
+ 	unsigned char   deviceType;	   //Êý¾ÝÀàÐÍ
+	
+	unsigned short	RFCount;       //µ±Ç°Êý¾Ý°ü	
+//	unsigned short  PackLoad;	 //×Ü°üÊý
+		unsigned short  cnt;           //Í³¼ÆÖµ£¬µ±Ç°ÊÇµÚ¼¸µÎ
+	unsigned char   Data_length;	 //Êý¾Ý³¤¶È
+	unsigned char   rchPower;      //µç³ØÊ£ÓàµçÁ¿  rchPower%
+	unsigned char   cSpeedDrop;    //µÎËÙ  µ¥Î» µÎ/·Ö
+	unsigned char   cAlarm;        //±¨¾¯ÐÅºÅ
+//	unsigned char   RFCount;      //RF¼ÆÊý±êÖ¾×Ö
+	unsigned char   ID0;     
+	unsigned char   ID1;     
+	unsigned char   ID2;     
+	unsigned char   ID3;     
+	unsigned char   ID4;     
+	unsigned char   ID5;     
+	unsigned char   ID6;
+	unsigned char   ID7;
+
+	unsigned char   verify;        //±£Áô×Ö		
 }dropStutas_t;
 
  dropStutas_t* M10frm = ((dropStutas_t*)&txBuffer[0]);
@@ -679,144 +663,217 @@ typedef struct
 uint8_t BCC_verify(void);
 void KeyScan(void)
 {	
-	if(!GPIO_GetPinStatus(BUTTON_PORT, BUTTON1_PIN))
-	{
-		lkeyDownCount++;
-        keypress = true;
-	}
-	else
-	{
-		keypress = false;
-	}
-	if(lkeyDownCount < 3000 && lkeyDownCount!=0 && keypress == false)  //¶Ì°´
-	{ 
-		Key1 = true;   //¶Ì°´±êÖ¾Î»
-		lkeyDownCount = 0;
-	}
-	if(lkeyDownCount > 3500) 
-	{
-		Keylong = true;    //³¤°´±êÖ¾Î»
-		lkeyDownCount = 0;
-	}
+
+		if(!GPIO_GetPinStatus(BUTTON_PORT, BUTTON1_PIN))  // ¼ì²âµ½¸´Î»°´ÏÂ
+			{
+				lkeyDownCount++;
+				keypress =1;
+			}
+		else
+			{
+				 keypress =0;
+			}
+		if(lkeyDownCount < 3000 && lkeyDownCount!=0 && keypress ==0)  //¶Ì°´
+			{ 
+				Key1 = 1;   //¶Ì°´±êÖ¾Î»
+				lkeyDownCount = 0;
+				printf_string("\n\rjian ce dao duan an\n\r");
+			}
+	  if(lkeyDownCount > 3500) 
+			 {
+				Keylong = 1;    //³¤°´±êÖ¾Î»
+			 lkeyDownCount = 0;
+			 }
 			
      //¸´Î»´ÎÊý´óÓÚ5			 
-	if(KeylongCount > 5) 		 //  && keypress ==0    
-	{
-		Keylonglong = true;
-		KeylongCount = 0;
-	}		 
+	   if(KeylongCount > 5) 		 //  && keypress ==0    
+			 {
+				Keylonglong = 1;
+				KeylongCount = 0;
+			 }		 
 			 
 }
 void KeyDispose(void)
 {
+	uint8_t j=0;
+	
 	KeyScan();
 									   
-	if(Key1 == true)     //¼ì²âµ½¶Ì°´¸´Î»										 
-	{	 						
-		Key1 = false;									
-		if(MotorOn == true) 							
-		{	
-			first55_flag=2;//¶Ì°´½âËøºóÖØÖÃflag±êÖ¾Î» 	
-			GPIO_SetActive(LED_PORT, LED_PIN);//					LEDON; 						
-			app_timer_set(MOTOR_RESET, TASK_APP, 50);                //µç»úÊÍ·Å
-			GPIO_SetActive(GPIO_PORT_2, GPIO_PIN_7);	   //¿ª5VµçÔ
-			delay_us(20);										
-			SetBeep();									
-		    GPIO_SetInactive(GPIO_PORT_2, GPIO_PIN_7);   //¹Ø5VµçÔ´ 	
-			iSecCount=0;							
-			iSecCnt2 = 1;							
-			LEDCount=0;	  							
-			timer[3] = 3;						    
-																											 			
-			MotorOn = true;   							
-			SwordClose = false;									
+	if(Key1 == 1)     //¼ì²âµ½¶Ì°´¸´Î»										 
+		{	 						
+			Key1 = 0;									
+			if(MotorOn == 0) 			//µç»úÑ¹Ëõ×´Ì¬±êÊ¶	£¬µç»úÑ¹ËõºóMotorOn =0	
+				{	
+					first55_flag=2;//¶Ì°´½âËøºóÖØÖÃflag±êÖ¾Î» 	
+					GPIO_SetActive(LED_PORT, LED_PIN);//					LEDON; 						
+//					GPIO_SetInactive(GPIO_PORT_0, GPIO_PIN_0);		
+//					delay_us(2); 			
+//					GPIO_SetActive(GPIO_PORT_1, GPIO_PIN_0); 		 
+//					delay_ms(3300);
+//					GPIO_SetInactive(GPIO_PORT_1, GPIO_PIN_0); 	 		
+//					for(j=0;j<100;j++)
+//					{
+//						GPIO_SetActive(GPIO_PORT_1, GPIO_PIN_0);	
+//						delay_us(20);
+//						GPIO_SetInactive(GPIO_PORT_1, GPIO_PIN_0);
+//						delay_us(20);
+//					}
+//					GPIO_SetActive(GPIO_PORT_0, GPIO_PIN_0);	 
+					ResetCnt=0;
+					
+					printf_string("\n duan an  MOTOR_RESET   ");
+					app_timer_set(MOTOR_RESET, TASK_APP, 20);                //µç»úÊÍ·Å
+                    //motor_reset_handleEx();
+					GPIO_SetActive(GPIO_PORT_2, GPIO_PIN_7);	   //¿ª5VµçÔ
+					delay_us(20);										
+					SetBeep();		  //·äÃùÆ÷Ïì 1Éù				
+		      GPIO_SetInactive(GPIO_PORT_2, GPIO_PIN_7);   //¹Ø5VµçÔ´ 	
+					iSecCount=0;							
+					iSecCnt2 = 1;		//¹Ø»ú¼ÆÊ±¸´Î»					
+					LEDCount=0;	  							
+					timer[3] = 3;						    
+					Motor = 0;																						 			
+					MotorOn = 1;   							
+					SwordClose =0;									
 
-			BeSecTmp[0] = 0;
-			BeSecTmp[1] = 0;
+					BeSecTmp[0] = 0;
+					BeSecTmp[1] = 0;
 						
-			GPIO_SetInactive(LED_PORT, LED_PIN);//LEDOFF;
-		}
+					GPIO_SetInactive(LED_PORT, LED_PIN);//LEDOFF;
+				}
 	}
 	
 	
-	if(Keylong==true)		 // ¼ì²âµ½³¤°´¸´Î»		
-	{
-		Keylong = false;								
-		if(MotorOn == true) 							
-		{	
-			GPIO_SetActive(LED_PORT, LED_PIN);//LEDON;					   				
-			GPIO_SetActive(GPIO_PORT_2, GPIO_PIN_7);	   //¿ª5VµçÔ
-			delay_us(20);										
-			SetBeep();								
-			delay_us(1200);							   	
-			SetBeep();
-		    GPIO_SetInactive(GPIO_PORT_2, GPIO_PIN_7);   //¹Ø5VµçÔ´ 					
-			KeylongCount++;//¼ÇÂ¼¸´Î»´ÎÊý
-			SystemCount = 0;						
-			count_present = 0; 						
-			cIptWarning = WARNING_NORMAL; 											
-			cFunctionType = FUNC_KEY;		  //°´¼ü¸´Î»0xBB
-			ResetFlg = true;														
+	if(Keylong==1)		 // ¼ì²âµ½³¤°´¸´Î»		
+		{
+			Keylong = 0;								
+			if(MotorOn == 1) 				//µç»úÊÍ·Å×´Ì¬±êÊ¶	£¬µç»úÊÍ·ÅºóMotorOn =1			
+				{	
+					printf_string("\n chang an,MotorOn == 1,dian ji shi fang zhuang tai  ");
+					GPIO_SetActive(LED_PORT, LED_PIN);//LEDON;					   
+//					Sleep = 0;				
+					GPIO_SetActive(GPIO_PORT_2, GPIO_PIN_7);	   //¿ª5VµçÔ
+					delay_us(20);										
+					SetBeep();			//·äÃùÆ÷Ïì µÚÒ»Éù					
+					delay_us(1200);							   	
+					SetBeep();      //·äÃùÆ÷Ïì µÚ¶þÉù	
+		      GPIO_SetInactive(GPIO_PORT_2, GPIO_PIN_7);   //¹Ø5VµçÔ´ 					
+					KeylongCount++;//¼ÇÂ¼¸´Î»´ÎÊý
+					SystemCount = 0;						
+					count_present = 0; 						// ³¤°´ÇåÁãºó£¬ÒºµÎ×ÜµÎÊýÎª0	
+					cIptWarning =0x00; 						// ³¤°´ÇåÁãºó£¬±¨¾¯ÀàÐÍÎª0x00		
+					cFunctionType = FUNC_KEY;		  //°´¼ü¸´Î»0xBB£¬   ³¤°´ÇåÁãºó£¬Êý¾ÝÀàÐÍÎª0xBB
+					ResetFlg = 1;														
 					
-			BeSecTmp[0] = 0;
-			BeSecTmp[1] = 0;								
-			GPIO_SetInactive(LED_PORT, LED_PIN);//LEDOFF;
-		}
-		else   										
-		{   
-			cIptWarning = WARNING_NORMAL;
-			SystemCount=0;
-			GPIO_SetActive(LED_PORT, LED_PIN);//LEDON; 				  							
-			app_timer_set(MOTOR_RESET, TASK_APP, 50);		// µç»ú¸´Î»
-			GPIO_SetActive(GPIO_PORT_2, GPIO_PIN_7);	   //¿ª5VµçÔ
-			delay_us(20);					
-			SetBeep();								
-			delay_us(800);
-			delay_us(400);
-			SetBeep();			
-		    GPIO_SetInactive(GPIO_PORT_2, GPIO_PIN_7);   //¹Ø5VµçÔ´ 					
-			first55_flag=2;//³¤°´½âËøºóÖØÖÃflag±êÖ¾Î»
-			iSecCount=0;							
-			LEDCount=0;								
-			count_present = 0;	
+					BeSecTmp[0] = 0;
+					BeSecTmp[1] = 0;								
+					GPIO_SetInactive(LED_PORT, LED_PIN);//LEDOFF;
+				}
+			else   									//µç»úÑ¹Ëõ×´Ì¬ÏÂ³¤°´¸´Î»
+				{   
+					cIptWarning=0x00;
+						SystemCount=0;
+					GPIO_SetActive(LED_PORT, LED_PIN);//LEDON; 				  							
+//					GPIO_SetInactive(GPIO_PORT_0, GPIO_PIN_0);		
+//					delay_us(2); 			
+//					GPIO_SetActive(GPIO_PORT_1, GPIO_PIN_0); 		 
+//					delay_ms(3300);
+//					GPIO_SetInactive(GPIO_PORT_1, GPIO_PIN_0); 	 		
+//					
+//					for(j=0;j<100;j++)
+//					{
+//						GPIO_SetActive(GPIO_PORT_1, GPIO_PIN_0);	
+//						delay_us(20);
+//						GPIO_SetInactive(GPIO_PORT_1, GPIO_PIN_0);
+//						delay_us(20);
+//					}
+//					GPIO_SetActive(GPIO_PORT_0, GPIO_PIN_0);
+					ResetCnt=0;
+					app_timer_set(MOTOR_RESET, TASK_APP, 20);		// µç»ú¸´Î»
+                    //motor_reset_handleEx();
+					GPIO_SetActive(GPIO_PORT_2, GPIO_PIN_7);	   //¿ª5VµçÔ
+					delay_us(20);					
+					SetBeep();				//·äÃùÆ÷Ïì µÚ1Éù					
+					delay_us(800);
+					delay_us(400);
+					SetBeep();			  //·äÃùÆ÷Ïì µÚ2Éù	
+		      GPIO_SetInactive(GPIO_PORT_2, GPIO_PIN_7);   //¹Ø5VµçÔ´ 					
+						first55_flag=2;//³¤°´½âËøºóÖØÖÃflag±êÖ¾Î»
+					iSecCount=0;							
+					LEDCount=0;								
+					count_present = 0;	
 										
-			cFunctionType = FUNC_KEY;	 		 //°´¼ü¸´Î»0xBB												 										
-			MotorOn = true;   							
-			SwordClose = false;		
-			ResetFlg = true;
-														
-			BeSecTmp[0] = 0;
-			BeSecTmp[1] = 0;
-			GPIO_SetInactive(LED_PORT, LED_PIN);//LEDOFF;
-		}			
-	}
-	if(Keylonglong == true)  //¸´Î»´ÎÊý´óÓÚ5´Î
-	{
-		Keylonglong = false;
-		GPIO_SetActive(GPIO_PORT_2, GPIO_PIN_7);	   //¿ª5VµçÔ´
-		delay_us(20);										
-		SetBeep();//±êÖ¾333								
-		delay_us(560);							   	
-		SetBeep(); //±êÖ¾444
-		delay_us(560);							   	
-		SetBeep(); //±êÖ¾555
-		GPIO_SetInactive(GPIO_PORT_2, GPIO_PIN_7);   //¹Ø5VµçÔ´ 	
-		ZigBee_Wake();
-        SetFlag = true;   //zigbeeÉèÖÃ
+					cFunctionType = FUNC_KEY;	 		 //°´¼ü¸´Î»0xBB												 										
+					MotorOn = 1;   							
+					SwordClose =0;		
+//					rf_send_sta=0xaa;	
+//           senddata = 1;		
+					ResetFlg = 1;
+					Motor = 0;									
+					BeSecTmp[0] = 0;
+					BeSecTmp[1] = 0;
+					GPIO_SetInactive(LED_PORT, LED_PIN);//LEDOFF;
+				}			
+		}
+			if(Keylonglong==1)  //¸´Î»´ÎÊý´óÓÚ5´Î
+				{
+					 Keylonglong=0;
+					GPIO_SetActive(GPIO_PORT_2, GPIO_PIN_7);	   //¿ª5VµçÔ
+						delay_us(20);										
+						SetBeep();////·äÃùÆ÷Ïì µÚ1Éù							
+					delay_us(560);							   	
+					SetBeep(); ////·äÃùÆ÷Ïì µÚ2Éù
+					delay_us(560);							   	
+					SetBeep(); ////·äÃùÆ÷Ïì µÚ3Éù
+				  GPIO_SetInactive(GPIO_PORT_2, GPIO_PIN_7);   //¹Ø5VµçÔ´ 	
+//					ResetFlg = 0;
+					ZigBee_Wake();
+          SetFlag = 1;   //zigbeeÉèÖÃ
 					
-		delay_us(560);
-        GPIO_SetActive(LED_PORT, LED_PIN);//LEDON; 
+					delay_us(560);
+          GPIO_SetActive(LED_PORT, LED_PIN);//LEDON; 
+//	for(j=0;j<5;j++)
+//			{
+//			uart_send_byte(LacalSetting[j]);
+//			}
 					
-	}
+//				ZigBee_Setting();
+					
+		    }
 }
-/*
-************************************************************************************
-* Platform initialization
-************************************************************************************
-*/
-void InitPlatform(void)
+ 
+
+
+/**
+ ****************************************************************************************
+ * @brief BLE main function.
+ *
+ * This function is called right after the booting process has completed.
+ ****************************************************************************************
+ */
+int main_func(void) __attribute__((noreturn));
+
+int main_func(void)
 {
-    #if (USE_WDOG)
+	uint8_t i;//,j
+	uint16_t value1 = 0,value = 0,value2 = 0,warntime=15; 
+	uint8_t maBuffer[20],iMaCount = 0;	
+	uint64_t unique_id;
+	uint8_t FLASHid[8];	//,BleADD[6]
+//	uint32_t jedec_id;
+
+	
+    sleep_mode_t sleep_mode; // keep at system RAM. On each while loop it will get a new value. 
+    
+    sys_startup_flag = true;
+	
+
+    /*
+     ************************************************************************************
+     * Platform initialization
+     ************************************************************************************
+     */
+#if (USE_WDOG)
     SetWord16(WATCHDOG_REG, 0xC8);          // 200 * 10.24ms = ~2sec active time!
     SetWord16(WATCHDOG_CTRL_REG, 0);        // Generate an NMI when counter reaches 0 and a WDOG (SYS) Reset when it reaches -16!
                                             // WDOG can be frozen by SW!
@@ -849,111 +906,81 @@ void InitPlatform(void)
     set_system_clocks();    //ÏµÍ³Ê±ÖÓ³õÊ¼»¯
     GPIO_init();             //GPIO³õÊ¼»¯
     periph_init();           //´®¿Ú  SPI  FLASH ³õÊ¼»¯
-}
+/*****************                 ***********************/ 
+						
+//	   GPIO_SetActive(LED_PORT, LED_PIN);  //LED
+     GPIO_SetActive(GPIO_PORT_2, GPIO_PIN_0);  //LED
+              
+		 Activeflag = 1;	
+		 if(Activeflag==1)
+		 { 		  
+			 GPIO_SetActive(GPIO_PORT_1 , GPIO_PIN_3);  //power_ON  Èí¼þ¿ªÏµÍ³µçÔ´
+		 }
+		 
+			 GPIO_SetActive(GPIO_PORT_2, GPIO_PIN_7);	   //¿ª5VµçÔ´		
+					 		 
+//				jedec_id = spi_read_flash_jedec_id();
+//				printf_string("\n\rSPI flash JEDEC ID is ");
+//				printf_byte((jedec_id>>16)&0xFF);
+//				printf_byte((jedec_id>>8)&0xFF);
+//				printf_byte((jedec_id)&0xFF);
+ 
+				unique_id = spi_read_flash_unique_id();					
+				printf_string("\nSPI flash Unique ID Number is ");
+        printf_byte(((unique_id>>32)>>24)&0xFF);
+        printf_byte(((unique_id>>32)>>16)&0xFF);
+        printf_byte(((unique_id>>32)>>8)&0xFF);
+        printf_byte((unique_id>>32)&0xFF);
+        printf_byte((unique_id>>24)&0xFF);
+        printf_byte((unique_id>>16)&0xFF);
+        printf_byte((unique_id>>8)&0xFF);
+        printf_byte((unique_id)&0xFF);
+			FLASHid[0] = ((unique_id>>32)>>24)&0xFF;    
+			FLASHid[1] = ((unique_id>>32)>>16)&0xFF;  
+			FLASHid[2] = ((unique_id>>32)>>8)&0xFF;  
+			FLASHid[3] = (unique_id>>32)&0xFF;         
+			FLASHid[4] = (unique_id>>24)&0xFF;         
+			FLASHid[5] = (unique_id>>16)&0xFF;         
+			FLASHid[6] = (unique_id>>8)&0xFF;          
+			FLASHid[7] = (unique_id)&0xFF;             
 
-/*
-************************************************************************************
-* BLE initialization
-************************************************************************************
-*/
-void InitBLE(void)
-{
-    init_pwr_and_clk_ble(); 
+			spi_flash_read_data(nvds_data_storage.NVDS_TAG_BD_ADDRESS,0xf000,6);   //´Ë´¦½«M10 MACµØÖ·´Óflash¶Á³ö
 
-#if UNCALIBRATED_AT_FAB
-    SetBits16(BANDGAP_REG, BGR_TRIM, 0x0);  // trim RET Bandgap
-    SetBits16(BANDGAP_REG, LDO_RET_TRIM, 0xA);  // trim RET LDO
-    SetWord16(RF_LNA_CTRL1_REG, 0x24E);
-    SetWord16(RF_LNA_CTRL2_REG, 0x26);
-    SetWord16(RF_LNA_CTRL3_REG, 0x7);
-    SetWord16(RF_VCO_CTRL_REG, 0x1);
-    SetBits16(CLK_16M_REG, RC16M_TRIM, 0xA);
-#endif
+		  GPIO_ConfigurePin(GPIO_PORT_0, GPIO_PIN_0, OUTPUT, PID_GPIO, false); 	
+		  RESERVE_GPIO(GPIO, GPIO_PORT_0, GPIO_PIN_0, PID_GPIO);
+	    delay_us(10);
 
-    // Initialize BLE stack 
-    NVIC_ClearPendingIRQ(BLE_SLP_IRQn);     
-    NVIC_ClearPendingIRQ(BLE_EVENT_IRQn); 
-    NVIC_ClearPendingIRQ(BLE_RF_DIAG_IRQn);
-    NVIC_ClearPendingIRQ(BLE_RX_IRQn);
-    NVIC_ClearPendingIRQ(BLE_CRYPT_IRQn);
-    NVIC_ClearPendingIRQ(BLE_FINETGTIM_IRQn);	
-    NVIC_ClearPendingIRQ(BLE_GROSSTGTIM_IRQn);	
-    NVIC_ClearPendingIRQ(BLE_WAKEUP_LP_IRQn);     	
-    rwip_init(error);
-    
-#if ((BLE_APP_PRESENT == 0 || BLE_INTEGRATED_HOST_GTL == 1) && BLE_HOST_PRESENT )
-    patch_gtl_task();
-#endif // #if (BLE_APP_PRESENT == 0 || BLE_INTEGRATED_HOST_GTL == 1)
-    
-    /* Set spi to HW (Ble)
-     * Necessary: So from this point the BLE HW can generate spi burst iso SW
-     * SPI BURSTS are necessary for the radio TX and RX burst, done by hardware
-     * beause of the accurate desired timing 
-     */
-    //FPGA
-#ifdef FPGA_USED    
-    SetBits32(BLE_CNTL2_REG,SW_RPL_SPI ,1);
-#endif
+      
 
-    //Enable BLE core    
-    SetBits32(BLE_RWBTLECNTL_REG,RWBLE_EN ,1); 
-
-    
-#if RW_BLE_SUPPORT && HCIC_ITF
-
-    // If FW initializes due to FW reset, send the message to Host
-    if(error != RESET_NO_ERROR)
-    {
-        rwble_send_message(error);
-    }
-#endif
-}
-
-/*
-************************************************************************************
-* Flash initialization
-************************************************************************************
-*/
-void InitFlash(void)
-{
-    GPIO_SetActive(GPIO_PORT_2, GPIO_PIN_0);  //LED             
-	Activeflag = true;	
-	if(Activeflag==true)
-	{ 		  
-		 GPIO_SetActive(GPIO_PORT_1 , GPIO_PIN_3);  //power_ON  Èí¼þ¿ªÏµÍ³µçÔ´
-	}		 
-	GPIO_SetActive(GPIO_PORT_2, GPIO_PIN_7);	   //¿ª5VµçÔ´		 
-	unique_id = spi_read_flash_unique_id();					
-	FLASHid[0] = ((unique_id>>32)>>24)&0xFF;    
-	FLASHid[1] = ((unique_id>>32)>>16)&0xFF;  
-	FLASHid[2] = ((unique_id>>32)>>8)&0xFF;  
-	FLASHid[3] = (unique_id>>32)&0xFF;         
-	FLASHid[4] = (unique_id>>24)&0xFF;         
-	FLASHid[5] = (unique_id>>16)&0xFF;         
-	FLASHid[6] = (unique_id>>8)&0xFF;          
-	FLASHid[7] = (unique_id)&0xFF;      
-    spi_flash_read_data(nvds_data_storage.NVDS_TAG_BD_ADDRESS,0xf000,6);
-
-	GPIO_ConfigurePin(GPIO_PORT_0, GPIO_PIN_0, OUTPUT, PID_GPIO, false); 	
-	RESERVE_GPIO(GPIO, GPIO_PORT_0, GPIO_PIN_0, PID_GPIO);
-	delay_us(10);
-	SetBeep();
-	delay_us(12);
-	SetBeep();
-	delay_us(12); 
-	SetBeep();
-	delay_us(12);
-	SetBeep(); 
-	delay_us(12);
-	SetBeep();
-	delay_us(12); 
-	SetBeep();
-	delay_us(12);
-	SetBeep(); 
-	ZigBee_Sleep();	//ZigBeeÄ£¿é½øÈëÐÝÃß					
-	GPIO_SetInactive(GPIO_PORT_2, GPIO_PIN_0);   //LED
-	GPIO_SetInactive(GPIO_PORT_2, GPIO_PIN_7);   //¹Ø5VµçÔ´ 
-	first55_flag=2;
+			
+//			GPIO_SetInactive(GPIO_PORT_0, GPIO_PIN_0);
+//		  GPIO_SetActive(GPIO_PORT_1, GPIO_PIN_0);	
+//			 delay_ms(3300);    		
+//			GPIO_SetInactive(GPIO_PORT_1 , GPIO_PIN_0);	
+//		  GPIO_SetActive(GPIO_PORT_0, GPIO_PIN_0);	
+//			
+          
+//			  ¿ª»úÉÏµçÏìÉù ¡¯Bi¡®³¤ÏìÉù
+					SetBeep();      //·äÃùÆ÷Ïì µÚ1Éù
+					delay_us(12);
+					SetBeep();      //·äÃùÆ÷Ïì µÚ2Éù
+					delay_us(12); 
+					SetBeep();      //·äÃùÆ÷Ïì µÚ3Éù
+					delay_us(12);
+					SetBeep();      //·äÃùÆ÷Ïì µÚ4Éù
+					delay_us(12);
+					SetBeep();      //·äÃùÆ÷Ïì µÚ5Éù
+					delay_us(12); 
+					SetBeep();      //·äÃùÆ÷Ïì µÚ6Éù
+					delay_us(12);
+					SetBeep();      //·äÃùÆ÷Ïì µÚ7Éù
+				  ZigBee_Sleep();	//ZigBeeÄ£¿é½øÈëÐÝÃß					
+		//		GPIO_SetInactive(LED_PORT, LED_PIN); 
+				  GPIO_SetInactive(GPIO_PORT_2, GPIO_PIN_0);   //LED
+				  GPIO_SetInactive(GPIO_PORT_2, GPIO_PIN_7);   //¹Ø5VµçÔ´ 
+				  first55_flag=2;
+					
+					
 			 
 /*****************                 ***********************/ 		
           
@@ -1002,16 +1029,72 @@ void InitFlash(void)
     iq_trim_from_otp();
 #endif
 
-}
+    /*
+     ************************************************************************************
+     * BLE initialization
+     ************************************************************************************
+     */
+     
+    init_pwr_and_clk_ble(); 
+    //diagnostic();
 
-/*
-************************************************************************************
-* Sleep mode initializations (especially for full embedded)
-************************************************************************************
-*/
-void InitSleepMode(void)
-{
-    #if (EXT_SLEEP_ENABLED)
+  //  rf_init(&rwip_rf);
+  //  SetBits32(BLE_RADIOCNTL1_REG, XRFSEL, 3);
+
+#if UNCALIBRATED_AT_FAB
+    SetBits16(BANDGAP_REG, BGR_TRIM, 0x0);  // trim RET Bandgap
+    SetBits16(BANDGAP_REG, LDO_RET_TRIM, 0xA);  // trim RET LDO
+    SetWord16(RF_LNA_CTRL1_REG, 0x24E);
+    SetWord16(RF_LNA_CTRL2_REG, 0x26);
+    SetWord16(RF_LNA_CTRL3_REG, 0x7);
+    SetWord16(RF_VCO_CTRL_REG, 0x1);
+    SetBits16(CLK_16M_REG, RC16M_TRIM, 0xA);
+#endif
+
+    // Initialize BLE stack 
+    NVIC_ClearPendingIRQ(BLE_SLP_IRQn);     
+    NVIC_ClearPendingIRQ(BLE_EVENT_IRQn); 
+    NVIC_ClearPendingIRQ(BLE_RF_DIAG_IRQn);
+    NVIC_ClearPendingIRQ(BLE_RX_IRQn);
+    NVIC_ClearPendingIRQ(BLE_CRYPT_IRQn);
+    NVIC_ClearPendingIRQ(BLE_FINETGTIM_IRQn);	
+    NVIC_ClearPendingIRQ(BLE_GROSSTGTIM_IRQn);	
+    NVIC_ClearPendingIRQ(BLE_WAKEUP_LP_IRQn);     	
+    rwip_init(error);
+    
+#if ((BLE_APP_PRESENT == 0 || BLE_INTEGRATED_HOST_GTL == 1) && BLE_HOST_PRESENT )
+    patch_gtl_task();
+#endif // #if (BLE_APP_PRESENT == 0 || BLE_INTEGRATED_HOST_GTL == 1)
+    
+    /* Set spi to HW (Ble)
+     * Necessary: So from this point the BLE HW can generate spi burst iso SW
+     * SPI BURSTS are necessary for the radio TX and RX burst, done by hardware
+     * beause of the accurate desired timing 
+     */
+    //FPGA
+#ifdef FPGA_USED    
+    SetBits32(BLE_CNTL2_REG,SW_RPL_SPI ,1);
+#endif
+
+    //Enable BLE core    
+    SetBits32(BLE_RWBTLECNTL_REG,RWBLE_EN ,1); 
+
+    
+#if RW_BLE_SUPPORT && HCIC_ITF
+
+    // If FW initializes due to FW reset, send the message to Host
+    if(error != RESET_NO_ERROR)
+    {
+        rwble_send_message(error);
+    }
+#endif
+
+    /*
+     ************************************************************************************
+     * Sleep mode initializations (especially for full embedded)
+     ************************************************************************************
+     */
+#if (EXT_SLEEP_ENABLED)
      app_set_extended_sleep();
 #elif (DEEP_SLEEP_ENABLED)
      app_set_deep_sleep();
@@ -1024,27 +1107,41 @@ void InitSleepMode(void)
         calibrate_rcx20(20);
         read_rcx_freq(20);  
     }
-}
-
-/*
-************************************************************************************
-* Application initializations
-************************************************************************************
-*/
-void InitAppliaction(void)
-{
-    #if (BLE_APP_PRESENT)    
+    
+    /*
+     ************************************************************************************
+     * Application initializations
+     ************************************************************************************
+     */
+     
+#if (BLE_APP_PRESENT)    
     {
         app_init();         // Initialize APP
     }
 #endif /* #if (BLE_APP_PRESENT) */
-
+  
+    
+    /*
+    ************************************************************************************
+    * Main loop
+    ************************************************************************************
+    */
     lld_sleep_init_func();
     
     SetWord16(TRIM_CTRL_REG, 0xA2);
     SetBits16(CLK_16M_REG, XTAL16_CUR_SET, 0x5);
     
 //    // Gives 1dB higher sensitivity - UNTESTED
+//    if (GetBits16(ANA_STATUS_REG, BOOST_SELECTED) == 0x1) 
+//    { 
+//        // Boost-mode
+//        SetBits16(DCDC_CTRL2_REG, DCDC_CUR_LIM, 0x8); // 80mA
+//    }
+//    else 
+//    { 
+//        // Buck-mode
+//        SetBits16(DCDC_CTRL2_REG, DCDC_CUR_LIM, 0x4); // 40mA
+//    }
     
 // Now enable the TX_EN/RX_EN interrupts, depending on the RF mode of operation (PLL-LUT and MGC_KMODALPHA combinations)
 
@@ -1053,41 +1150,53 @@ void InitAppliaction(void)
 #if BLE_APP_SPOTAR
     //app_spotar_exec_patch();
 #endif
+    
 
-    if ( (app_get_sleep_mode() == 2) || (app_get_sleep_mode() == 1) )
+    if( (app_get_sleep_mode() == 2) || (app_get_sleep_mode() == 1) )
     {
          SetWord16(SET_FREEZE_REG, FRZ_WDOG);            // Stop WDOG until debugger is removed
          while ((GetWord16(SYS_STAT_REG) & DBG_IS_UP) == DBG_IS_UP) {}; 
          SetBits16(SYS_CTRL_REG, DEBUGGER_ENABLE, 0);    // close debugger
     }	
-}
-
-/*
-************************************************************************************
-* Watchdog initializations
-************************************************************************************
-*/
-void InitWatchdog(void)
-{
-    #if (USE_WDOG)
+	
+		
+    /*
+     ************************************************************************************
+     * Watchdog
+     ************************************************************************************
+     */
+#if (USE_WDOG)
     SetWord16(WATCHDOG_REG, 0xC8);          // 200 * 10.24ms active time for initialization!
     SetWord16(RESET_FREEZE_REG, FRZ_WDOG);  // Start WDOG
 #endif
 
     
 #if (STREAMDATA_QUEUE)
-    stream_fifo_init ();
-#endif   
-}
-
-/*
-************************************************************************************
-* SetAndWaitInterrupts 
-************************************************************************************
-*/
-uint8_t SetAndWaitInterrupts(sleep_mode_t* sleep_mode)
-{
-  	// schedule all pending events
+      stream_fifo_init ();
+#endif    
+    
+		
+	//app_timer_set(MOTOR_RESET, TASK_APP,20);  //ÉÏµç³õÊ¼»¯£¬ËÉ¿ª
+    motor_reset_handleEx();
+	//  delay_us(1000);
+    app_timer_set(ADC_TIMER, TASK_APP, 20);  //¼ì²âµçÁ¿
+		
+    /*
+     ************************************************************************************
+     * Main loop
+     ************************************************************************************
+     */
+		 
+		
+    while(1)
+    {   
+        if(ADCcount == 600) //5min»ñÈ¡Ò»´ÎµçÁ¿
+        {
+           app_timer_set(ADC_TIMER, TASK_APP, 20);  //¼ì²âµçÁ¿
+           ADCcount = 0;
+        }
+			
+		// schedule all pending events
 		if(GetBits16(CLK_RADIO_REG, BLE_ENABLE) == 1) 
 		{ // BLE clock is enabled
 			  if(GetBits32(BLE_DEEPSLCNTL_REG, DEEP_SLEEP_STAT) == 0 && !(rwip_prevent_sleep_get() & RW_WAKE_UP_ONGOING)) 
@@ -1109,7 +1218,7 @@ uint8_t SetAndWaitInterrupts(sleep_mode_t* sleep_mode)
                 
 #if (BLE_APP_PRESENT)
 				if ( app_asynch_trm() )
-					return 1; // so that rwip_schedule() is called again
+					continue; // so that rwip_schedule() is called again
 #endif
                 
 #ifdef CFG_PRINTF
@@ -1123,16 +1232,19 @@ uint8_t SetAndWaitInterrupts(sleep_mode_t* sleep_mode)
 #if (BLE_APP_PRESENT)
 		// asynchronous events processing
 		if (app_asynch_proc())
-			return 1; // so that rwip_schedule() is called again
+			continue; // so that rwip_schedule() is called again
 #endif
 
 #if (STREAMDATA_QUEUE)        
         if (stream_queue_more_data( ))
-            return 1;
-#endif   
+            continue;
+#endif
+        
 #if (!BLE_APP_PRESENT)
         if (check_gtl_state())
-#endif			
+#endif
+    
+				
 			{
             GLOBAL_INT_STOP();
 
@@ -1141,59 +1253,62 @@ uint8_t SetAndWaitInterrupts(sleep_mode_t* sleep_mode)
 #endif        
 
 //            // set wake-up delay only for RCX (to cover small frequency shifts due to temerature variation)
+//            if (lp_clk_sel == LP_CLK_RCX20)
+//                set_sleep_delay();
+        
             // if app has turned sleep off, rwip_sleep() will act accordingly
             // time from rwip_sleep() to WFI() must be kept as short as possible!
-            *sleep_mode = rwip_sleep();
+            sleep_mode = rwip_sleep();
         
             // BLE is sleeping ==> app defines the mode
-            if (*sleep_mode == mode_sleeping) 
-			{
+            if (sleep_mode == mode_sleeping) 
+						{
                 if (sleep_env.slp_state == ARCH_EXT_SLEEP_ON) 
-				{
-                    *sleep_mode = mode_ext_sleep;
+								{
+                    sleep_mode = mode_ext_sleep;
                 } 
-				else 
-				{
-                    *sleep_mode = mode_deep_sleep;
+								else 
+								{
+                    sleep_mode = mode_deep_sleep;
                 }
             }
             
-            if (*sleep_mode == mode_ext_sleep || *sleep_mode == mode_deep_sleep) 
+            if (sleep_mode == mode_ext_sleep || sleep_mode == mode_deep_sleep) 
             {
                 SetBits16(PMU_CTRL_REG, RADIO_SLEEP, 1); // turn off radio
                 
                 if (jump_table_struct[nb_links_user] > 1)
                 {
-                    if( (*sleep_mode == mode_deep_sleep) && func_check_mem() && test_rxdone() && ke_mem_is_empty(KE_MEM_NON_RETENTION) )
+                    if( (sleep_mode == mode_deep_sleep) && func_check_mem() && test_rxdone() && ke_mem_is_empty(KE_MEM_NON_RETENTION) )
                     {
                         func_check_mem_flag = 2;//true;
                     }
                     else
-                        *sleep_mode = mode_ext_sleep;
+                        sleep_mode = mode_ext_sleep;
                 }
                 else
                 {
-                    if( (*sleep_mode == mode_deep_sleep) && ke_mem_is_empty(KE_MEM_NON_RETENTION) )
+                    if( (sleep_mode == mode_deep_sleep) && ke_mem_is_empty(KE_MEM_NON_RETENTION) )
                     {
                         func_check_mem_flag = 1;//true;
                     }
                     else
-                        *sleep_mode = mode_ext_sleep;
+                        sleep_mode = mode_ext_sleep;
                 }
                 
 #if (BLE_APP_PRESENT)
                 // hook for app specific tasks when preparing sleeping
-                app_sleep_prepare_proc(sleep_mode);
+                app_sleep_prepare_proc(&sleep_mode);
 #endif
                 
                 
-                if (*sleep_mode == mode_ext_sleep || *sleep_mode == mode_deep_sleep)
+                if (sleep_mode == mode_ext_sleep || sleep_mode == mode_deep_sleep)
                 {
                     SCB->SCR |= 1<<2; // enable sleepdeep mode bit in System Control Register (SCR[2]=SLEEPDEEP)
                     
                     SetBits16(SYS_CTRL_REG, PAD_LATCH_EN, 0);           // activate PAD latches
                     SetBits16(PMU_CTRL_REG, PERIPH_SLEEP, 1);           // turn off peripheral power domain
-                    if (*sleep_mode == mode_ext_sleep)	{
+                    if (sleep_mode == mode_ext_sleep)	{
                         SetBits16(SYS_CTRL_REG, RET_SYSRAM, 1);         // retain System RAM
                         SetBits16(SYS_CTRL_REG, OTP_COPY, 0);           // disable OTP copy	  
                     } else { // mode_deep_sleep
@@ -1210,7 +1325,7 @@ uint8_t SetAndWaitInterrupts(sleep_mode_t* sleep_mode)
                 
 #if (BLE_APP_PRESENT)
                 // hook for app specific tasks just before sleeping
-                app_sleep_entry_proc(sleep_mode);
+                app_sleep_entry_proc(&sleep_mode);
 #endif
 
 #if ((EXTERNAL_WAKEUP) && (!BLE_APP_PRESENT)) // external wake up, only in external processor designs
@@ -1221,7 +1336,7 @@ uint8_t SetAndWaitInterrupts(sleep_mode_t* sleep_mode)
 
 #if (BLE_APP_PRESENT)
                 // hook for app specific tasks just after waking up
-                app_sleep_exit_proc(*sleep_mode);
+                app_sleep_exit_proc(sleep_mode);
 #endif
 
 #if ((EXTERNAL_WAKEUP) && (!BLE_APP_PRESENT)) // external wake up, only in external processor designs
@@ -1233,7 +1348,7 @@ uint8_t SetAndWaitInterrupts(sleep_mode_t* sleep_mode)
                 // instead of a processor halt
                 SCB->SCR &= ~(1<<2);
             }
-            else if (*sleep_mode == mode_idle) 
+            else if (sleep_mode == mode_idle) 
             {
 #if (!BLE_APP_PRESENT)              
                 if (check_gtl_state())
@@ -1250,440 +1365,515 @@ uint8_t SetAndWaitInterrupts(sleep_mode_t* sleep_mode)
 #if (USE_WDOG)        
         SetWord16(WATCHDOG_REG, 0xC8);          // Reset WDOG! 200 * 10.24ms active time for normal mode!
 #endif
-     return 0;
-}
-/*
-************************************************************************************
-* CheckStatus 
-************************************************************************************
-*/
-void CheckStatus(void)
-{
-//     // µçÔ´¼ì²â Èí¼þ¹Ø»ú		 
-//		if(Power ==0) 			
-//		{
-//			GPIO_SetInactive(GPIO_PORT_1, GPIO_PIN_3);	 //POWER_ON  ÏµÍ³¶Ïµç		
-//			GPIO_SetInactive(LED_PORT, LED_PIN);	 		
-//			Activeflag =0;			 					
-//		}		
-		KeyDispose();   //°´¼ü¼ì²â
-		ZigBee_Setting();
+
+		 
+//// Èí¼þ¹Ø»ú		 
+				if(Power ==0) 			
+				{
+					GPIO_SetInactive(GPIO_PORT_1, GPIO_PIN_3);	 //POWER_ON  ÏµÍ³¶Ïµç		
+					GPIO_SetInactive(LED_PORT, LED_PIN);	 		
+					Activeflag =0;			 					
+				}
+					
+				
+				KeyDispose();
+				ZigBee_Setting();
 
 /////////////////////////·ðÉ½8-29////////////////////////////		
 /////¿ª¸Ç¼ì²â
-		if(GPIO_GetPinStatus(GPIO_PORT_2, GPIO_PIN_5) == true)			 // P2_5  CLAMP¿ØÖÆ¿Ú   ¿ª¸ÇÔò½øÈëÏÂÃæº¯Êý
-		{
-			clamp = true;     //¿ª¸Ç±êÖ¾Î»
-			Power = true;	 //×ÜµçÔ´ÉÏµç±êÖ¾Î»
+			if(GPIO_GetPinStatus(GPIO_PORT_2, GPIO_PIN_5)==1)			 // P2_5  CLAMP¿ØÖÆ¿Ú   ¿ª¸ÇÔò½øÈëÏÂÃæº¯Êý
+				{
+					clamp=1;     //¿ª¸Ç±êÖ¾Î»
+					Power = 1;	 //×ÜµçÔ´ÉÏµç±êÖ¾Î»
         					
-		}
-        else
-        {
-            clamp = false;
-        }
-}
-
-//ÏµÍ³¶Ïµç¹Ø»ú
-void PowerOff(void) 
-{
-    GPIO_SetInactive(GPIO_PORT_1, GPIO_PIN_3);	 //POWER_ON  ÏµÍ³¶Ïµç		
-	GPIO_SetInactive(LED_PORT, LED_PIN);	 		
-	Activeflag = false;    
-}
-
-
-//¼ì²âÊÇ·ñÐèÒª×Ô¶¯¹Ø»ú
-void CheckAutoPowerOffStatus(void)
-{
-    if(clamp ==true && (DropINT == true||count_present<7))		   //¿ª¸Ç ²¢ÇÒ ¼ì²âµ½ÓÐÒºµÎ»òÕßÒºµÎÊýÐ¡ÓÚ7£¬ ÔòÈí¼þ¹Ø»ú  		 
-	{					                                           //DropINT ¼ì²âµ½ÒºµÎ±êÖ¾
-		clamp = false;    
-		SystemCount=0;  //ÏµÍ³¼ÆÊ±¼ÆÊý  0*0.5s
-														
-	}	
-	if(count_present<7  && cIptWarning==WARNING_NORMAL && clamp==false )	  //ºÏ¸Ç ²¢ÇÒÒºµÎÊýÐ¡ÓÚ7 ²¢ÇÒ ±¨¾¯ÀàÐÍÎª00-Õý³£ÊäÒº¯Ò 	
-	{								
-		if(SystemCount>=60&&SystemCount<=80)   //30sÄÚ¼ì²â²»µ½ÒºµÎ£¬¹Ø»úÇ°·¢ËÍ¹Ø»úÔ¤¾¯ÐÅºÅ0XCC
-		{  
-			cFunctionType = FUNC_ALARM;   //¹Ø»úÔ¤¾¯ 0xCC
-			if(SystemCount%2==0)
-            {
-				timer[3]=3;
-            }
-		}
-		else if(SystemCount>80)   //³¬¹ý40s
-		{
-			SystemCount = 0;															      
-			PowerOff();		  //ÏµÍ³¶Ïµç¹Ø»ú  P1.3 =0
-		}						
-	}				
-//Êý¾ÝÀàÐÍÅÐ¶¨  0xAA:Õý³£ÊäÒº   0xBB£º°´¼ü¸´Î»			
-	if(cFunctionType ==FUNC_KEY&&count_present<=3)		//¸´Î»ÐÅºÅ³ÖÐø3µÎ	cFunctionType:Êý¾ÝÀàÐÍ		FUNC_KEY=0xBB
-    {
-        alarm_signal=true;		
-    }            
-	else 
-    {            
-		alarm_signal=false;		   //		µÈÓÚÁãÊ±ÅÐ¶¨ cFunctionType = FUNC_DROP;
-    }
-}
-
-void OpenClamStatus(void)
-{
-    Motor = true;							   	
-	iSecCount = 0;	                              //ÐÞÕýÊäÒº¹ÜÍÑÀëËÀÇøÊ±¼ä					   	
-    if(cIptWarning == WARNING_UNCOVER && count_present>6)			 //¿ª¸ÇÊäÒº±¨¾¯  ²¢ÇÒÒºµÎÊý´óÓÚ6  
-	{
-		if(opencount%14==0)	//ÏìÉùÌáÊ¾²»ºöÂÔ    Ã¿7S±¨¾¯Ò»´Î
-		{
-			GPIO_SetActive(GPIO_PORT_2, GPIO_PIN_7);	   //¿ª5VµçÔ
-			delay_us(20);								
-			SetBeep();
-			GPIO_SetInactive(GPIO_PORT_2, GPIO_PIN_7);   //¹Ø5VµçÔ´ 								
-			opencount=1;
-		}
-	}
-						
-	if(iSecCnt2%20==0)//¿ª¸Ç10s·¢Ò»´Î±¨¾¯						
-	{						        																			
-		cIptWarning = WARNING_TERMINAL;              	
-		cFunctionType = FUNC_DROP;
-		value2 =  avg_value;			
-  /////ÊäÒºÍÑÀë20min£¬Ò»ºÏ¸Ç¾Í¹Ø»ú
-		if(iSecCnt2>2400)
-		{
-			PowerOff();							  //¹Ø»ú
-		}										 								        															
-		if(RFOFF == false)  
-        {
-            halt = true;	
-        }			
-	}	
-						
-	if(halt == true && RFOFF == false)	   		
-	{    
-		if(iSecCnt2<2390)	 //¿ª¸ÇÊ±¼ä³¬¹ý10s£¬Ã¿¸ô10s±¨¾¯Ò»´ÎÐ¡ÓÚ20minÊ±  20minÒÔÍâ 5sÈßÓà 
-		{
-			GPIO_SetActive(GPIO_PORT_2, GPIO_PIN_7);	   //¿ª5VµçÔ
-			delay_us(20);																
-			SetBeep();		//¿ª¸ÇÊ±¼ä³¬¹ý10s£¬Ã¿¸ô10s±¨¾¯Ò»´Î						
-            GPIO_SetInactive(GPIO_PORT_2, GPIO_PIN_7);   //¹Ø5VµçÔ´ 			
-		} 
-		count_present += (avg_value/6);  		 
-		rf_send_sta=SEND_NORMAL;			
-	}
-}
-
-//Ô¤±¨¾¯´¦Àí
-void PreAlarm(void)
-{
-    ////////////////¶¯Ì¬ËøËÀÊ±¼äÔÚ8sÒÔÏÂµÄ²»½øÐÐÔ¤±¨¾¯/////////////////////////////
-    if(warntime>16 && iSecCount ==13 && count_present>6)	 //16*0.5=8s    13*0.5=6.5s ±¨¾¯Ê±¼ä´óÓÚ8s£¬6.5ÃëÎÞÒºµÎºó½øÐÐÔ¤±¨¾¯
-	{	
-		GPIO_SetActive(GPIO_PORT_2, GPIO_PIN_7);	   //¿ª5VµçÔ
-		delay_us(20);
-		SetBeep();								
-		delay_us(600);							
-		SetBeep();
-		delay_us(800);
-		delay_us(400);
-		SetBeep();
-		delay_us(600);
-		SetBeep();
-		GPIO_SetInactive(GPIO_PORT_2, GPIO_PIN_7);   //¹Ø5VµçÔ´ 
-		cIptWarning = WARNING_PREALARM;
-		rf_send_sta=SEND_NORMAL;
-		LEDCount=0;	
-		iSecCount = 14;
-	}	
-				
-	if(iSecCount >=warntime  && count_present>6  )      //25µÎÊ±¼ä	 1.5ML µ½´ïÔ¤±¨¾¯Ê±¼ä
-	{	  						  	 
-		if(!SwordClose)  
-		{ 
-			timer[3]=24;  			  //		³õÊ¼»¯Ê±¼ä12s
-			Motor = false;	                                                                                                                                                                                                                                                                                                                                                      									
-		} 				
-		if(Motor == false)									
-		{
-            app_timer_set(MOTOR_TIMER, TASK_APP, 50);	// µç»úËøËÀ			
-			Motor = true;									
-			SwordClose = true;		
-			LEDCount = 0;
-		}				
-		if(!BeSecTmp[0])
-		{											
-						// ÔÚwarntimeºÜÐ¡µÄÊ±ºò DI DI DI DI Ö»»áÏìÒ»´Î
-			BeSecTmp[0] = 20;//DI DI DI DI¹Ì¶¨ÏìÈý´Î				
-			BeSecTmp[1] = BeSecTmp[0];
-		}			
-		if(BeSecTmp[1]==BeSecTmp[0]-5||BeSecTmp[1]==BeSecTmp[0]-11||BeSecTmp[1]==BeSecTmp[0]-17)   
-		{ 					
-			GPIO_SetActive(GPIO_PORT_2, GPIO_PIN_7);	   //¿ª5VµçÔ
-			delay_us(20);
-			beep();		
-			GPIO_SetInactive(GPIO_PORT_2, GPIO_PIN_7);   //¹Ø5VµçÔ´ 											
-		}
-		if(LEDCount%2==0&&LEDCount<21)	  
-		{
-			timer[3]=3;	
-		}			
-		if(( (iSecCount-BeSecTmp[0])%20==0 ||first55_flag!=0 ) && Key1!=1 )//10sÒ»´Î||(BeSecTmp[1]%2==0&&BeSecTmp[1]>1) 
-		{							  
-			timer[3]=3;	 					
-			cIptWarning = WARNING_END;	  			
-			cFunctionType = FUNC_DROP;
-			value2 =  0;	
-			halt = true;						 	
-			alarm_temp=0;
-			first55_flag=first55_flag-1;				
-		} 										
-        if((MotorOn==0)&&(iSecCnt2-warntime>2405))	
-		{
-			PowerOff(); //¹Ø»ú
-		}									
-								
-	}
-}
-
-//µÎÒº´¦Àí
-void Drip(void)
-{
-    DropINT = false;
-	SetFlag = false;
-	if(count_present<=60) 	//´¦Àí³õÊ¼60µÎ				
-	{  
-		GPIO_SetActive(LED_PORT, LED_PIN);  
-		delay_us(600);   //×î¿ªÊ¼60µÎ£¬ Ã¿µÎLEDµÆÁÁÒ»´Î
-	}
-    if(alarm_signal==false)
-    {		
-        cFunctionType = FUNC_DROP;   //Êý¾ÝÀàÐÍ  0xAA£ºÕý³£ÊäÒº
-    }
-	iSecCount = 0;	   			
-	iSecCnt2 = 1; 				
-	SystemCount = 0;			
-	alarm_sta=0x11;			   	
-	alarm_temp=0;				
-	//ºÏ¸Ç¼ì²â			
-	if(GPIO_GetPinStatus(GPIO_PORT_2, GPIO_PIN_5)==false)  //  ºÏÉÏ¸Ç
-	{
-		cIptWarning = WARNING_NORMAL;   //  Õý³£ÊäÒº×´Ì¬ 0x00						
-	} 
-	else  if(count_present>6)      //¿ª¸Ç²¢ÇÒÒºµÎÊý´óÓÚ6µÎ  
-	{ 
-		cIptWarning = WARNING_UNCOVER;    //  ¿ª¸ÇÊäÒº×´Ì¬ 0xEE
-    }		
-	//ÒºµÎËÙ¶È¼ÆËã				
-	value1=value0&0xffff;		   // value1 Á½ÒºµÎÖ®¼äµÄ¼ä¸ôÊ±¼ä
-	if(value1<470)		//470*0.5ms=	235ms   	
-	{
-		value=255;  //ÒºÌåËÙ¶È  255µÎ/·ÖÖÓ     1*60*1000/235=255  µÎ/·ÖÖÓ
-	}
-	else
-	{
-		value=120000/value1;	
-	}									
-	maBuffer[++iMaCount] = value;	   
-	maBuffer[6]= maBuffer[iMaCount];	
-    if(iMaCount == 5)					     					   						
-	{  
-		iMaCount = 0;
-        speed_five_status=true;  //ÒÑ¼ì5µÎ
-	}
-	if(speed_five_status==true)		
-	{  
-		value2 = (maBuffer[1]+maBuffer[2]+maBuffer[3]+maBuffer[4]+maBuffer[5])/5;
-	}
-	else
-	{ 					//Ê×´Î ÔÚ1ÖÁ4µÎÊ± ÇóÆ½¾ù  
-		value2=(maBuffer[1]+maBuffer[2]+maBuffer[3]+maBuffer[4]+maBuffer[5])/iMaCount;
-	} 				
-	avg_value = (maBuffer[1]+maBuffer[2]+maBuffer[3]+maBuffer[4]+maBuffer[5]-maBuffer[6])/4;					
-	if( value2!=0 && value2<=255 &&(value2-iTempMIN>=5||iTempMIN-value2>=5))			//abs(value2 - iTempMIN)>=10 &&Sleep!=1
-	{ 
-		senddata = true;	// µÎËÙ´óÓÚ0Ð¡ÓÚ255Ê±£¬  ²¢ÇÒÓëÉÏ´Î·¢ËÍÊäÒºËÙ¶È¶Ô±È±ä»¯³¬¹ý5£¬  Ôò·¢ËÍÊý¾Ý				
-		timer[4] = 24;						    
-	}				
-	else if(value2!=0&&value2<=255&&(value2-iTempMIN<5||iTempMIN-value2<5))		//Ð¡ÓÚ200¸Ä³ÉÐ¡ÓÚµÈÓÚ255
-	{
-		if(timer[4] < 5)  // µÎËÙ´óÓÚ0Ð¡ÓÚ255Ê±£¬ÓëÉÏ´Î·¢ËÍËÙ¶È±ä»¯Ð¡ÓÚ5£¬  Ôò¼ä¸ô(24-5+1)*0.5s=10s·¢ËÍÊý¾Ý					
-		{
-			senddata = true;				
-			timer[4] = 24;				
-		}
-	}		 
-	//¶¯Ì¬±¨¾¯Ê±¼ä¼ÆËã	 
-	if(avg_value>10&&avg_value<=200&&count_present>6) 
-    {
-        warntime = (uint8_t)(((60*1.0/avg_value)*1.0)*30);	  //¶¯Ì¬±¨¾¯Ê±¼ä¼ÆËã         //Ã¿ºÁÉý15µÎ
-    } 
-	else if(avg_value<=10&&avg_value!=0&&count_present>6)
-	{	
-        warntime = 180;	   //1800/10=180   180*0.5=90s
-    }
-	else if(avg_value>200)
-    {
-		warntime = 7;     //7*0.5=3.5s	
-    }        
-	if(count_present<5)  //ÒºµÎ¼ÆÊý
-	{
-        senddata=true;
-    }				
-	if(count_present<2&&first_count_status==1)  //ÉÏµçÊ×µÎ ¶ªÆúÊý¾Ý Ç¿ÖÆÎÞÏß²»·¢ËÍ
-	{
-		count_present=0;
-		first_count_status=false;  //³õÊ¼ÖµÎª1 
-		senddata=false;
-		iMaCount=0;//Æ½¾ùÊý¾Ý¼ÆÊýÇåÁã
-	}
-	if(senddata==true)		  	
-	{
-		senddata = false;					
-		iTempMIN = value2;	//Ã¿·¢ËÍÒ»´ÎÊý¾Ý£¬°Ñ·¢ËÍËÙ¶È¼ÇÂ¼ÎªÉÏ´Î·¢ËÍËÙ¶È			
-		if(RFOFF == false)
-        {            
-            rf_send_sta=SEND_NORMAL;	
-        }            
-		else 
-		{
-            rf_send_sta=SEND_END; 
-        }            
-	}
-						
-	GPIO_SetInactive(LED_PORT, LED_PIN); 
-}
-
-//ÎÞÏßÊý¾Ý·¢ËÍ
-void BleSendData(void)
-{
-    if(cIptWarning == WARNING_PREALARM||alarm_signal==true)
-	{		
-		if(LEDCount==21) 				 //21*0.5=10.5s		
-		{ 	
-			rf_send_sta=SEND_NORMAL;		     
-			LEDCount=0;
-		}
-	}						
-	if(timer[3]==2 && RFOFF==false)		 		//2*0.5=1s
-	{
-		rf_send_sta = SEND_NORMAL;					   	
-	}			
-	if((rf_send_sta==SEND_NORMAL|ResetFlg==1)&&SetFlag != true)		// 	Õý³£ÊäÒº»òÕß¸´Î» ²¢ÇÒzigbeeÎ´ÉèÖÃ			
-	{
-		ZigBee_Wake();
-		delay_us(800);	
-        if(iSecCount >= warntime)	 				
-		{			  	   					 
-			for(i = 0;i<5;i++)		
-			{
-				maBuffer[i]=0;					
-			}					       	
-		}
-		if(count_present>60) 	
-        {            
-			GPIO_SetActive(LED_PORT, LED_PIN);
-        }            
-
-		M10frm->Zigbee_ADD = 0x031B;				//cFunctionType;
-		M10frm->deviceType = cFunctionType;  	//Êý¾ÝÀàÐÍ  0xAA or 0xBB
-		M10frm->RFCount = txCount;	  //ÎÞÏß·¢ËÍµÄ´ÎÊý
-		M10frm->cnt = count_present;  //ÒºµÎ×ÜµÎÊý
-		M10frm->Data_length = 0x14;	  //Êý¾Ý³¤¶È
-		M10frm->rchPower = uBatRemainPercentMA;		//  µç³ØµçÁ¿
-		M10frm->cSpeedDrop = value2;				//ÒºµÎËÙ¶È							
-		M10frm->cAlarm = cIptWarning;   //±¨¾¯ÀàÐÍ
-
-		M10frm->ID0 = FLASHid[0];	 //Î¨Ò»ID
-		M10frm->ID1 = FLASHid[1];
-		M10frm->ID2 = FLASHid[2];
-		M10frm->ID3 = FLASHid[3];
-		M10frm->ID4 = FLASHid[4];
-		M10frm->ID5 = FLASHid[5];
-		M10frm->ID6 = FLASHid[6];
-		M10frm->ID7 = FLASHid[7];
-							
-		M10frm->verify = BCC_verify();   //BCCÐ£Ñé
-
-		delay_us(60);					
-		for(i=0;i<20;i++)
-		{
-			uart_send_byte(txBuffer[i]);
-		}				
-		ZigbFlg =true;
-		timer[5] = 6;					
-		if(M10_Master_conready==true)        //À¶ÑÀÒÑÁ¬½Ó
-		{ 		
-			attmdb_att_set_value(STREAMDATAD_DIR_VAL_HANDLE(0),20, (uint8_t*)&(txBuffer[0])); //
-			prf_server_send_event((prf_env_struct *)&(streamdatad_env.con_info), false, STREAMDATAD_DIR_VAL_HANDLE(0));
-		}
-
-		txCount=txCount+1;			
-		if(txCount>0xfffe)
-		{
-            txCount=1;
-        }
-		halt =false;
+				}
+//               else
+//               {
+//                   clamp = 0;
+//               }
 			
-		RFOFF = 2;	//·¢ËÍ¼ä¸ô¼ÆÊ±  2*0.5s=1s
-		rf_send_sta=SEND_END;
-		ResetFlg = false;				
-		GPIO_SetInactive(LED_PORT, LED_PIN); 
-	}	
-    if(ZigbFlg == true&&SetFlag != true)
-	{
-		if(timer[5]<5)
-        {		
-			ZigBee_Sleep();	
-            ZigbFlg=false;
-		}		
-	}	
-}
-/**
- ****************************************************************************************
- * @brief BLE main function.
- *
- * This function is called right after the booting process has completed.
- ****************************************************************************************
- */
-int main_func(void) __attribute__((noreturn));
+///////				
+//1£¬ Èí¼þ¹Ø»úÇé¿ö £¨ºÏ¸Ç£¬Ð¡ÓÚ+7µÎ£¬30Ãëºó¹Ø»ú£©
+			if(clamp ==1 && (DropINT == 1||count_present<7))		   //¿ª¸Ç ²¢ÇÒ ¼ì²âµ½ÒºÌåÒºµÎÊýÐ¡ÓÚ7£¬ ÔòÈí¼þ¹Ø»ú  		 
+				{					                                           //DropINT ¼ì²âµ½ÒºµÎ±êÖ¾
+					  clamp = 0;    
+						SystemCount=0;  //ÏµÍ³¼ÆÊ±¼ÆÊý  0*0.5s
+				}	
+				
+			if(count_present<7  && cIptWarning==0x00 && clamp!=1 )	   	
+				{								
+					if(SystemCount>=60&&SystemCount<=80)   //30sÄÚ¼ì²â²»µ½ÒºµÎ£¬¹Ø»úÇ°·¢ËÍ¹Ø»úÔ¤¾¯ÐÅºÅ0XCC
+					  {  
+						cFunctionType = 0xcc;   //¹Ø»úÔ¤¾¯ 0xCC
+					  if(SystemCount%2==0)
+							timer[3]=3;
+//						rf_send_sta=0xaa;
+					  }
+					else	if(SystemCount>80)   //³¬¹ý40s
+					{
+						SystemCount = 0;															      
+						Power = 0;		  //ÏµÍ³¶Ïµç¹Ø»ú  P1.3 =0
+					}						
+				}	
+				
+///////				
+//Êý¾ÝÀàÐÍÅÐ¶¨  0xAA:Õý³£ÊäÒº   0xBB£º°´¼ü¸´Î»			
+			if(cFunctionType ==FUNC_KEY&&count_present<=3)		//¸´Î»ÐÅºÅ³ÖÐø3µÎ	cFunctionType:Êý¾ÝÀàÐÍ		FUNC_KEY=0xBB
+						 alarm_signal=1;				
+			else   
+						 alarm_signal=0;		   //		µÈÓÚÁãÊ±ÅÐ¶¨ cFunctionType = FUNC_DROP;
+			
+			
+///////				
+//¿ª¸ÇÊäÒº		
+			if(clamp ==1  && MotorOn==1)	//¿ª¸Ç£¬ µç»úÊÍ·Å×´Ì¬ ¿ª¸ÇºóÁ¢¼´ifÅÐ¶Ï
+//			if(clamp ==1)
+			{							   							 
+					Motor = 1;							   	
+//					Sleep = 0;
+					iSecCount = 0;	                              //ÐÞÕýÊäÒº¹ÜÍÑÀëËÀÇøÊ±¼ä	
 
-int main_func(void)
-{		
-    sleep_mode_t sleep_mode; // keep at system RAM. On each while loop it will get a new value.    
-    sys_startup_flag = true; //ÏµÍ³Æô¶¯±êÖ¾	
-    InitPlatform();     //Æ½Ì¨³õÊ¼»¯        		
-	InitFlash();	    //Flash³õÊ¼»¯			   
-    InitBLE();          //À¶ÑÀ³õÊ¼»¯
-    InitSleepMode();    //ÐÝÃßÄ£Ê½³õÊ¼»¯  
-    InitAppliaction();  //Ó¦ÓÃ³õÊ¼»¯
-	InitWatchdog();     //¿´ÃÅ¹·³õÊ¼»¯  	
-    /*
-     ************************************************************************************
-     * Main loop
-     ************************************************************************************
-     */
-    while(true)
-    {   	     
-        if(SetAndWaitInterrupts(&sleep_mode) == 1)    //ÉèÖÃ²¢µÈ´ýÖÐ¶Ï
-        {
-            continue;
+	////¿ª¸ÇÊäÒº£¨¿ª¸Ç£¬ÓÐÒºµÎ¼ì²âµÃµ½£©		
+          if(cIptWarning == 0xEE && count_present>6)			 //¿ª¸ÇÊäÒº±¨¾¯    
+					  {
+							if(opencount%14==0)	//ÏìÉùÌáÊ¾²»ºöÂÔ    Ã¿7SÉùÒô±¨¾¯Ò»´Î
+							{
+								GPIO_SetActive(GPIO_PORT_2, GPIO_PIN_7);	   //¿ª5VµçÔ
+								delay_us(20);								
+								SetBeep();      //·äÃùÆ÷Ïì µÚ1Éù
+								GPIO_SetInactive(GPIO_PORT_2, GPIO_PIN_7);   //¹Ø5VµçÔ´ 								
+								opencount=1;
+							}
+					  }
+	/////ÊäÒº¹ÜÍÑÀëÊäÒºÇé¿ö£¨¿ª¸Ç£¬ÎÞÒºµÎ¼ì²â£©				
+					  if(iSecCnt2%20==0)//¹Ø»ú¼ÆÊ±Ã¿10s½øÈëÒ»´Î	£¬Ã¿¼ì²âµ½Ò»µÎÒºÌåiSecCnt2=1
+           	{						        																			
+							cIptWarning = 0xDD;          //¿ª¸Ç£¬ÊäÒº¹ÜÍÑÀë£¬±¨¾¯ÀàÐÍ 0xDD       	
+							cFunctionType = FUNC_DROP;   //Êý¾ÝÀàÐÍ 0xAA Õý³£ÊäÒº
+							value2 =  avg_value;         //ÊäÒºËÙ¶È
+							//if(iSecCnt2%2400==0)					  //ÊäÒºÍÑÀë20min£¬Ò»ºÏ¸Ç¾Í¹Ø»ú
+  /////ÊäÒºÍÑÀë20min£¬Ò»ºÏ¸Ç¾Í¹Ø»ú
+							if(iSecCnt2>2400)            //Ê±¼ä³¬¹ý20min
+							{
+								Power = 0;							  //¹Ø»ú
+							}										 								        															
+						 if(RFOFF == 0)  halt = 1;	  //RFOFF·¢ËÍÍêºóÖÃ2			
+						}	
+						
+						if(halt == 1 && RFOFF == 0)	   		
+						{    
+							if(iSecCnt2<2390)	 //¿ª¸ÇÊ±¼ä³¬¹ý10s£¬Ã¿¸ô10s±¨¾¯Ò»´ÎÐ¡ÓÚ20minÊ±  20minÒÔÍâ 5sÈßÓà 
+							{
+								GPIO_SetActive(GPIO_PORT_2, GPIO_PIN_7);	   //¿ª5VµçÔ
+								delay_us(20);																
+							  SetBeep();		//¿ª¸ÇÊ±¼ä³¬¹ý10s£¬Ã¿¸ô10s±¨¾¯Ò»´Î						
+								GPIO_SetInactive(GPIO_PORT_2, GPIO_PIN_7);   //¹Ø5VµçÔ´ 
+//								halt = 0;				
+							} 
+						  count_present += (avg_value/6);  		 
+							rf_send_sta=0xaa;			//ÔÊÐíÀ¶ÑÀ·¢ËÍ±êÊ¶
+						}		
+                     if(iSecCount >=warntime  && count_present>6  )      //25µÎÊ±¼ä	 1.5ML   //warntimeÖµÎª 7~180Ö®¼äµÄÖµ
+						 {	  						  	 
+								if(!SwordClose)     //SwordClose=0Ê±½øÈë£¬SwordClose³õÊ¼ÖµÎª0£¬ ½öÔÚµç»úÖÆ¶¯ºóÖÃ1
+									{ 
+										timer[3]=24;  			  //		³õÊ¼»¯Ê±¼ä12s
+										Motor = 0;	          //µç»úÎ´¶¯×÷±êÊ¶  £¬½öÔÚµç»úÖÆ¶¯ËøËÀºóÖÃ1                                                                                                                                                                                                                                                                                                                                         									
+									} 
+									
+								if(Motor == 0)				//µç»úÎ´¶¯×÷±êÊ¶ 					
+								 {
+/////////
+// µç»úËøËÀ					
+                    printf_string("\n SUO SI app_timer_set(MOTOR_TIMER) ");										
+//                    app_timer_set(MOTOR_TIMER, TASK_APP, 1);					// µç»úËøËÀ	
+                    motor_handleEx();
+										Motor = 1;				//µç»úÖÆ¶¯ËøËÀ±êÊ¶					
+										SwordClose =1;		
+										LEDCount = 0;
+								  } 
+                              }                                 
+			 }
+			else     //ºÏ¸Ç»òÕßµç»úÑ¹Ëõ×´Ì¬
+			{							
+						////////////////¶¯Ì¬ËøËÀÊ±¼äÔÚ8sÒÔÏÂµÄ²»½øÐÐÔ¤±¨¾¯/////////////////////////////
+						if(warntime>16 && iSecCount ==13 && count_present>6)	 //16*0.5=8s    13*0.5=6.5s  ¼ì²âµ½ÒºÌåiSecCount=0£¬È»ºóÃ¿0.5s¼Ó1
+							{	
+								//warntimeÖµÎª 7~180Ö®¼äµÄÖµ iSecCount¿ª¸Çµç»ú¸´Î»×´Ì¬ÇåÁã£¬  ¼ì²âµ½ÒºµÎÇåÁã
+								
+								GPIO_SetActive(GPIO_PORT_2, GPIO_PIN_7);	   //¿ª5VµçÔ
+								delay_us(20);
+								SetBeep();		  //·äÃùÆ÷Ïì µÚ1Éù						
+								delay_us(600);							
+								SetBeep();      //·äÃùÆ÷Ïì µÚ2Éù
+								delay_us(800);
+								delay_us(400);
+								SetBeep();      //·äÃùÆ÷Ïì µÚ3Éù
+								delay_us(600);
+								SetBeep();      //·äÃùÆ÷Ïì µÚ4Éù    
+
+
+								printf_string("\n Dong Tai Bao Jing 4 bibibibi ");	
+								
+								GPIO_SetInactive(GPIO_PORT_2, GPIO_PIN_7);   //¹Ø5VµçÔ´ 
+								cIptWarning = 0x33;
+								rf_send_sta=0xaa;  //ÔÊÐíÀ¶ÑÀ·¢ËÍ±êÊ¶
+								LEDCount=0;	
+								iSecCount = 14;  //¿ª¸Çµç»ú¸´Î»×´Ì¬Ò»Ö±ÇåÁã£¬  ¼ì²âµ½ÒºµÎÇåÁã£¬ÁíÃ¿¸ô0.5s¼Ó1
+							}	
+				
+						if(iSecCount >=warntime  && count_present>6  )      //25µÎÊ±¼ä	 1.5ML   //warntimeÖµÎª 7~180Ö®¼äµÄÖµ
+						 {	  						  	 
+								if(!SwordClose)     //SwordClose=0Ê±½øÈë£¬SwordClose³õÊ¼ÖµÎª0£¬ ½öÔÚµç»úÖÆ¶¯ºóÖÃ1
+									{ 
+										timer[3]=24;  			  //		³õÊ¼»¯Ê±¼ä12s
+										Motor = 0;	          //µç»úÎ´¶¯×÷±êÊ¶  £¬½öÔÚµç»úÖÆ¶¯ËøËÀºóÖÃ1                                                                                                                                                                                                                                                                                                                                         									
+									} 
+									
+								if(Motor == 0)				//µç»úÎ´¶¯×÷±êÊ¶ 					
+								  {
+/////////
+// µç»úËøËÀ					
+                    printf_string("\n SUO SI app_timer_set(MOTOR_TIMER) ");										
+//                    app_timer_set(MOTOR_TIMER, TASK_APP, 20);					// µç»úËøËÀ
+                    motor_handleEx();                                      
+//                                        delay_ms(100);
+										Motor = 1;				//µç»úÖÆ¶¯ËøËÀ±êÊ¶					
+										SwordClose =1;		
+										LEDCount = 0;
+								  }
+									
+								if(!BeSecTmp[0])       //BeSecTmp[0]=0Ê±½øÈë£¬ ½öÔÚÓÐÐ§¸´Î»»òÇåÁãºóÖÃ0£¬³õÊ¼ÖµÎª0
+									{
+										///BeSecTmp[0] = iSecCount+5;   // ÐÞ¸Äwarntimeºó,ÈçÊ¹ÓÃ¶¯Ì¬BeSecTmp									
+										// ÔÚwarntimeºÜÐ¡µÄÊ±ºò DI DI DI DI Ö»»áÏìÒ»´Î
+										BeSecTmp[0] = 20;//DI DI DI DI¹Ì¶¨ÏìÈý´Î		  BeSecTmp[0]=0½öÔÚ´Ë´¦¸Ä±ä	£¬ºóÒ»Ö±±£³ÖÎª20	
+										BeSecTmp[1] = BeSecTmp[0];     //BeSecTmp[1]=20½öÔÚ´Ë´¦¸Ä±äÒ»´Î	£¬ºóÃ¿¸ô0.5s¼õ1£¬Ö±µ½¼õµ½2
+									}
+	
+								
+							 if(BeSecTmp[1]==BeSecTmp[0]-5||BeSecTmp[1]==BeSecTmp[0]-11||BeSecTmp[1]==BeSecTmp[0]-17)   
+								{ 					
+									GPIO_SetActive(GPIO_PORT_2, GPIO_PIN_7);	   //¿ª5Vµç
+									delay_us(20);
+									beep();		
+									GPIO_SetInactive(GPIO_PORT_2, GPIO_PIN_7);   //¹Ø5VµçÔ´ 											
+								}
+								
+						   if(LEDCount%2==0&&LEDCount<21)	  
+								{
+									timer[3]=3;	
+								}		
+								
+								//first55_flag	³õÊ¼ÖµÎª2£¬ ¸´Î»ºóÎª2
+								if(( (iSecCount-BeSecTmp[0])%20==0 ||first55_flag!=0 ) && Key1!=1 )//10sÒ»´Î||(BeSecTmp[1]%2==0&&BeSecTmp[1]>1) 
+									{							  
+										timer[3]=3;	 					
+										cIptWarning = 0x55;	  			//±¨¾¯ÀàÐÍ¸´Î»Îª0x55
+										cFunctionType = FUNC_DROP;  //Êý¾ÝÀàÐÍ¸´Î»Îª0xAA
+										value2 =  0;	              //ËÙ¶ÈÖµ¸´Î»Îª0
+										halt = 1;						 	
+										alarm_temp=0;
+										first55_flag=first55_flag-1;				
+									} 										
+											
+								 if((MotorOn==0)&&(iSecCnt2-warntime>2405))	  //µç»úËø½ô×´Ì¬£¬ ³¬¹ý20·ÖÖÓºó£¬Èí¼þ¹Ø»ú
+								 {
+									Power = 0;
+								 }									
+								
+						  }		
+			}
+///////
+//¼ì²âµ½ÒºµÎ
+			  if(DropINT==1)              //¼ì²âµ½ÒºµÎ±êÊ¶£¬ Ã¿¼ì²âµ½Ò»´ÎÒºµÎ½øÈëÒ»´Î¡£
+				{			
+					printf_string("\n Detects a drop DropINT==1 ");
+					DropINT = 0;
+					SetFlag = 0;              //ÔÊÐíÀ¶ÑÀ·¢ËÍ±êÊ¶	
+
+					if(count_present<=60) 	//´¦Àí³õÊ¼60µÎ				
+					{  
+					 GPIO_SetActive(LED_PORT, LED_PIN);  
+					 delay_us(600);   //×î¿ªÊ¼60µÎ£¬ Ã¿µÎLEDµÆÁÁÒ»´Î
+																						
+					}
+				 
+					if(alarm_signal==0)		
+					cFunctionType = FUNC_DROP;   //Êý¾ÝÀàÐÍ  0xAA£ºÕý³£ÊäÒº
+
+					iSecCount = 0;	   			
+					iSecCnt2 = 1; 				
+					SystemCount = 0;			
+					alarm_sta=0x11;			   	
+					alarm_temp=0;				
+
+					///////
+					//ºÏ¸Ç¼ì²â			
+					if(GPIO_GetPinStatus(GPIO_PORT_2, GPIO_PIN_5)==0)  //  ºÏÉÏ¸Ç
+						{
+							cIptWarning = 0x00;   //  Õý³£ÊäÒº×´Ì¬ 0x00
+							
+						} 
+					else   
+						if(count_present>6)      //¿ª¸Ç²¢ÇÒÒºµÎÊý´óÓÚ6µÎ  
+						{
+							cIptWarning = 0xEE;    //  ¿ª¸ÇÊäÒº×´Ì¬ 0xEE£¬ÅÐ¶ÏÌõ¼þ £¬¿ª¸Ç²¢ÇÒÒºµÎ×ÜÊý´óÓÚ6µÎ
+            }		
+				
+					 ///////
+					 //ÒºµÎËÙ¶È¼ÆËã				
+					value1=value0&0xffff;		   // value1 Á½ÒºµÎÖ®¼äµÄ¼ä¸ôÊ±¼ä
+					if(value1<470)		//470*0.5ms=	235ms   	
+					{
+						value=255;  //ÒºÌåËÙ¶È  255µÎ/·ÖÖÓ     1*60*1000/235=255  µÎ/·ÖÖÓ
+					}
+					else    // ÒºµÎ¼ä¸ôÊ±¼ä´óÓÚ235ms
+					{
+						value=120000/value1;	
+					}									
+					maBuffer[++iMaCount] = value;	   
+					maBuffer[6]= maBuffer[iMaCount];	
+					
+					if(speed_five_status==1)//5+1µÎ
+						 {speed_right_status=1;}	//	
+						 
+					if(iMaCount == 5)					     					   						
+						{  
+							iMaCount = 0;speed_five_status=1;  //ÒÑ¼ì5µÎ
+						}
+					if(speed_five_status==1)	//¹»5µÎ	
+						{  
+							value2 = (maBuffer[1]+maBuffer[2]+maBuffer[3]+maBuffer[4]+maBuffer[5])/5;
+						}
+					else  //²»×ã5µÎÊ±
+						{ 					//Ê×´Î ÔÚ1ÖÁ4µÎÊ± ÇóÆ½¾ù  
+						 value2=(maBuffer[1]+maBuffer[2]+maBuffer[3]+maBuffer[4]+maBuffer[5])/iMaCount;
+						} 
+						
+					avg_value = (maBuffer[1]+maBuffer[2]+maBuffer[3]+maBuffer[4]+maBuffer[5]-maBuffer[6])/4;
+						
+					if( value2!=0 && value2<=255 &&(value2-iTempMIN>=5||iTempMIN-value2>=5))			//abs(value2 - iTempMIN)>=10 &&Sleep!=1
+						 { 
+								senddata = 1;	// µÎËÙ´óÓÚ0Ð¡ÓÚ255Ê±£¬  ²¢ÇÒÓëÉÏ´Î·¢ËÍÊäÒºËÙ¶È¶Ô±È±ä»¯³¬¹ý5£¬  Ôò·¢ËÍÊý¾Ý				
+								timer[4] = 24;						    
+						 }				
+					else if(value2!=0&&value2<=255&&(value2-iTempMIN<5||iTempMIN-value2<5))		//Ð¡ÓÚ200¸Ä³ÉÐ¡ÓÚµÈÓÚ255
+						 {
+							if(timer[4] < 5)  // µÎËÙ´óÓÚ0Ð¡ÓÚ255Ê±£¬ÓëÉÏ´Î·¢ËÍËÙ¶È±ä»¯Ð¡ÓÚ5£¬  Ôò¼ä¸ô(24-5+1)*0.5s=10s·¢ËÍÊý¾Ý					
+								{
+									senddata = 1;				
+									timer[4] = 24;				
+								}
+						 }
+					 
+					///////
+					//¶¯Ì¬±¨¾¯Ê±¼ä¼ÆËã	 
+					if(avg_value>10&&avg_value<=200&&count_present>6) 
+						warntime = (uint8_t)(((60*1.0/avg_value)*1.0)*30);	  //¶¯Ì¬±¨¾¯Ê±¼ä¼ÆËã         //Ã¿ºÁÉý15µÎ
+					else if(avg_value<=10&&avg_value!=0&&count_present>6)
+						warntime = 180;	   //1800/10=180   180*0.5=90s
+					else if(avg_value>200)
+						warntime = 7;     //7*0.5=3.5s
+					
+						clamp = 0;
+					
+							if(count_present<5)  //ÒºµÎ¼ÆÊý
+								{senddata=1;}
+						
+							//////////////////////////////////////////////////////
+							if(count_present<2&&first_count_status==1)  //ÉÏµçÊ×µÎ ¶ªÆúÊý¾Ý Ç¿ÖÆÎÞÏß²»·¢ËÍ  first_count_statusÄ¬ÈÏ³õÊ¼ÖµÎª1
+							{
+								count_present=0;
+								first_count_status=0;  //³õÊ¼ÖµÎª1 £¬  first_count_status´Ë±äÁ¿Êµ¼ÊÎ´ÆðÐ§£¬ ´Ëifº¯Êý½øÈëÒ»´Îºófirst_count_status==1½«²»ÔÙÂú×ã
+								senddata=0;
+								iMaCount=0;//Æ½¾ùÊý¾Ý¼ÆÊýÇåÁã
+							}
+								
+
+							if(senddata==1)		  	//ÒºµÎÊýÐ¡ÓÚ5Âú×ã´ËÌõ¼þ
+								{
+									senddata = 0;					
+									iTempMIN = value2;	//Ã¿·¢ËÍÒ»´ÎÊý¾Ý£¬°Ñ·¢ËÍËÙ¶È¼ÇÂ¼ÎªÉÏ´Î·¢ËÍËÙ¶È			
+									if(RFOFF == 0)	 				
+										rf_send_sta=0xaa;	 		//ÔÊÐíÀ¶ÑÀ·¢ËÍ±êÊ¶£¬ 
+									else 
+										rf_send_sta=0x55;    													
+								}
+								
+							GPIO_SetInactive(LED_PORT, LED_PIN); 
+
+				}	
+				
+				
+				
+				
+			if(cIptWarning == 0x33||alarm_signal==1)  //Ô¤±¨¾¯£¬»òÕßÒºÌåÐ¡ÓÚ3µÎ
+			{		
+				if(LEDCount==21) 				 //21*0.5=10.5s		
+				{ 	
+					rf_send_sta=0xaa;		    //ÔÊÐíÀ¶ÑÀ·¢ËÍ±êÊ¶ 
+					LEDCount=0;
+				}
+			}						
+
+		 if(timer[3]==2 && RFOFF==0)		 		//2*0.5=1s
+		 {
+
+		  rf_send_sta = 0xaa;		//ÔÊÐíÀ¶ÑÀ·¢ËÍ±êÊ¶			   	
+		 }
+		 
+		 
+					
+		 if((rf_send_sta==0xaa||ResetFlg==1)&&SetFlag != 1)		// 	ResetFlgÔÚ°´¼ü¸´Î»ºóÎª1£¬SetFlag³õÊ¼ÖµÎª0			
+			{
+					ZigBee_Wake();
+					delay_us(800);	
+					if(iSecCount >= warntime)	 				
+					{			  	   					 
+						for(i = 0;i<5;i++)		
+						{
+							maBuffer[i]=0;					
+						}					       	
+					}
+					if(count_present>60) 						
+					GPIO_SetActive(LED_PORT, LED_PIN);  
+                    
+
+					M10frm->Zigbee_ADD = 0x031B;				//cFunctionType;
+					M10frm->deviceType = cFunctionType;  	//Êý¾ÝÀàÐÍ  0xAA or 0xBB
+					M10frm->RFCount = txCount;	  //ÎÞÏß·¢ËÍµÄ´ÎÊý
+					M10frm->cnt = count_present;  //ÒºµÎ×ÜµÎÊý
+					M10frm->Data_length = 0x14;	  //Êý¾Ý³¤¶È
+					M10frm->rchPower = uBatRemainPercentMA;		//  µç³ØµçÁ¿
+					M10frm->cSpeedDrop = value2;				//ÒºµÎËÙ¶È							
+					M10frm->cAlarm = cIptWarning;   //±¨¾¯ÀàÐÍ
+
+					M10frm->ID0 = FLASHid[0];	 //Î¨Ò»ID
+					M10frm->ID1 = FLASHid[1];
+					M10frm->ID2 = FLASHid[2];
+					M10frm->ID3 = FLASHid[3];
+					M10frm->ID4 = FLASHid[4];
+					M10frm->ID5 = FLASHid[5];
+					M10frm->ID6 = FLASHid[6];
+					M10frm->ID7 = FLASHid[7];
+					
+					M10frm->verify = BCC_verify();   //BCCÐ£Ñé
+
+				  delay_us(60);	
+			
+				  for(i=0;i<20;i++)
+					{
+//						printf_string("\n BLE send date, (txBuffer[i])=");
+						delay_us(10);
+						uart_send_byte(txBuffer[i]);
+						delay_us(2);
+					}
+					
+					ZigbFlg =1;
+					timer[5] = 6;	
+					
+				 if(M10_Master_conready==1)
+				 {
+
+          printf_string("\n BLE send date 20, (uint8_t*)&(txBuffer[0]) ");					 
+					attmdb_att_set_value(STREAMDATAD_DIR_VAL_HANDLE(0),20, (uint8_t*)&(txBuffer[0])); //
+					prf_server_send_event((prf_env_struct *)&(streamdatad_env.con_info), false, STREAMDATAD_DIR_VAL_HANDLE(0));
+					
+					
+				 }
+
+				 txCount=txCount+1;			
+				 if(txCount>0xfffe)
+				 {txCount=1;}
+				 halt =0;
+	
+				 RFOFF = 2;	//·¢ËÍ¼ä¸ô¼ÆÊ±  2*0.5s=1s
+			 	 rf_send_sta=0x55;      
+				 ResetFlg = 0;
+//			 delay_ms(900);
+
+					
+					GPIO_SetInactive(LED_PORT, LED_PIN); 
+
+		//			  ZigBee_Sleep();	
+
+			  }	
+
+//				
+////    if(BLESnd == 1)		
+////		  {
+//			if(ZigbFlg == 1&&SetFlag != 1)
+//			  {
+//					if(timer[5]<5)
+//           	{		
+//				      ZigBee_Sleep();	ZigbFlg=0;
+//				    }		
+//				}
+////			}
+		
+				
+				
+		if(!needStop_flag)
+		{
+            adc_enable_channel(ADC_CHANNEL_P02);        //µç»ú¶Â×ªµçÁ÷²ÉÑù£¬   ²ÉÑùµç×è 5.1Å·Ä·
+            VIsense[VIsenseCount] = adc_get_sample(); 
+            VIsenseCount++;
+            VIsense_Avg= (VIsense[0]+VIsense[1]+VIsense[2])/3;    //3´Î²ÉÑùµÄÆ½¾ùÖµ
+            if(VIsenseCount == 3)					     					   						
+            {
+                VIsenseCount = 0;
+            }		
+      
+            if(setTime > 80)
+            {
+//            needStop = true;
+				needStop_flag = true;
+					
+				MotorOn = 0; 					
+                GPIO_SetInactive(GPIO_PORT_2, GPIO_PIN_7);     //¹Ø±Õ µç»ú5VµçÔ´¹©µçÊ¹ÄÜ£¬  ¿ØÖÆAAT1218 EN¶Ë
+                GPIO_SetInactive(GPIO_PORT_0, GPIO_PIN_0);    //¹Ø±Õ µç»ú¹©µç¿ª¹Ø Q6¿ª¹ØÊ¹ÄÜ£¬ ¿ØÖÆ8050µÄB¼«¿ØÖÆ PMOS
+                MotorFlag = 0; 
         }
-        CheckStatus();                                //¼ì²â¼°¸üÐÂ×´Ì¬
-        if(DropINT==true)                                //¼ì²âµ½ÒºµÎ
-		{			
-			Drip();	
-		}	
-        CheckAutoPowerOffStatus();                    //¼ì²âÊÇ·ñÐèÒª×Ô¶¯¹Ø»ú				
-		if(clamp ==true  && MotorOn==true)                  //¿ª¸Ç²¢ÇÒµç»úÎ´ËøËÀ
-		{							   							 
-			OpenClamStatus();	                      //¿ª¸Ç×´Ì¬±¨¾¯¼°×Ô¶¯¹Ø»ú						 					
-		}
-		else                                          
-		{							
-			PreAlarm();		                          //Ô¤±¨¾¯  						
-		}				
-		BleSendData();                                //ÎÞÏßÊý¾Ý·¢ËÍ	
+            if(VIsense_Avg>=0x0220)
+        {
+            
+            iseccnt4_flag=1;  //µ½´ïÑ¹ËõÁ¦¼«ÏÞ£¬¿ªÊ¼¼ÆÊ±£¬±£³ÖÁ¦500ms
+           
+        }
+        if(iseccnt4>60)  //¼«ÏÞÑ¹ËõÁ¦±£³ÖÊ±¼ä
+        {             
+//              needStop = true;
+			needStop_flag = true;										
+			MotorOn = 0; 					
+            GPIO_SetInactive(GPIO_PORT_2, GPIO_PIN_7);     //¹Ø±Õ µç»ú5VµçÔ´¹©µçÊ¹ÄÜ£¬  ¿ØÖÆAAT1218 EN¶Ë
+            GPIO_SetInactive(GPIO_PORT_0, GPIO_PIN_0);    //¹Ø±Õ µç»ú¹©µç¿ª¹Ø Q6¿ª¹ØÊ¹ÄÜ£¬ ¿ØÖÆ8050µÄB¼«¿ØÖÆ PMOS
+            MotorFlag = 0;
+        }
+    }
+//    if(!needStopReset)
+//    {
+//       if(resetTime > 4)
+//       {
+//            needStopReset = true;
+//            MotorOn = 1;		   //jc 2018.3.1¸ü¸ÄÎª1£¬Ô­À´Îª0£¬  ÅÐ¶ÏÒÀ¾ÝÎª  µç»ú¸´Î»±êÊ¶ MotorOn=1£¬±êÊ¶¸´Î»			
+//            GPIO_SetInactive(GPIO_PORT_2, GPIO_PIN_7);    //µç»ú5VµçÔ´¹©µç ,½ûÖ¹Ê¹ÄÜ£¬  P2_7¿ØÖÆAAT1218 EN¶Ë	
+//            GPIO_SetInactive(GPIO_PORT_0, GPIO_PIN_0);    //µç»ú¹©µç¿ª¹Ø Q6¿ª¹Ø½ûÖ¹Ê¹ÄÜ£¬P0_0¿ØÖÆ8050µÄB¼«¿ØÖÆ PMOS 	 		   
+//            MotorFlag = 0;
+//            resetTime = 0;
+//            
+//        }
+//    }
+ 
+    
+				
+				
+				
+				
+				
+				
+				
+				
     }
 }
 

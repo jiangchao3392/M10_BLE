@@ -70,7 +70,7 @@ void timer_init(void)
 }
 void timer_callback(void)
 {
-//  static unsigned char flag = 0;
+  static unsigned char flag = 0;
 //	if(flag)
 //	{
 ////    GPIO_SetActive(GPIO_PORT_2, GPIO_PIN_1);
@@ -181,6 +181,9 @@ void set_pad_functions(void)        // set gpio port function mode
    	//////////串口 OUTPUT////////////////
 		GPIO_ConfigurePin( GPIO_PORT_2, GPIO_PIN_3, OUTPUT, PID_UART1_TX, false );
 		GPIO_ConfigurePin( GPIO_PORT_2, GPIO_PIN_4, INPUT, PID_UART1_RX, false );
+	
+//	  GPIO_ConfigurePin( GPIO_PORT_0, GPIO_PIN_4, OUTPUT, PID_UART1_TX, false );
+//		GPIO_ConfigurePin( GPIO_PORT_0, GPIO_PIN_5, INPUT, PID_UART1_RX, false );
 //	  GPIO_ConfigurePin(GPIO_PORT_0, GPIO_PIN_0, OUTPUT, PID_GPIO, false);  //power_ctrl
 	
 
@@ -214,7 +217,7 @@ void gpio0_int_callback(void)
 	prf_server_send_event((prf_env_struct *)&(streamdatad_env.con_info), false, STREAMDATAD_DIR_VAL_HANDLE(0));
   //printf_string("GWI_UART_button1\n\r");
 
-  prf_cleanup_func(0x00,0x0000,0x08);
+  prf_cleanup_func(0x00,0x0000,0x08);     //主设备断开处理
   app_timer_set(GAPC_DISCONNECT_IND,TASK_APP,1); 
 }
 
@@ -370,7 +373,7 @@ void ZigBee_Wake(void)
 //}
 
 void ZigBee_Setting(void)
-{	  uint8_t i; 
+{	  uint8_t j,i; 
 		 
 	if(USART_RX_STA==1)
 		  {
@@ -389,7 +392,9 @@ void ZigBee_Setting(void)
 								for(i=0;i<9;i++)
 									{
 									uart_send_byte(RestoreSetting[i]);
-									}									
+									}		
+//										printf_string("\n\r"); 
+//										 uart_send_byte(0xDA);								
 								 break;
 							case 0xDA:  
 								if(rxBuffer[8]==0x00)		   //复位
@@ -402,12 +407,18 @@ void ZigBee_Setting(void)
 									}
 											delay_ms(1000); 			
 									
+//												printf_string("\n\r"); 
+//										 uart_send_byte(0xDA);
 										}			 
 								 break;			 
 
 						 default:	                //
 											break;
 						}					
+//		   for(j=0;j<js;j++)	
+//					{						  
+//					rxBuffer[j]=0;									  
+//				    }
 					js=0;
 		  }	
 		 

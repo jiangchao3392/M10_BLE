@@ -301,7 +301,7 @@ static int gattc_write_cmd_ind_handler(ke_msg_id_t const msgid,
 								 ///////////////////////////////////////
 								 spi_flash_block_erase(0xf000,SECTOR_ERASE);
 								 
-								 	spi_flash_page_program(periph_addr_storage, 0xf000, 6);
+								 	spi_flash_page_program(periph_addr_storage, 0xf000, 6);  //此处将M10 MAC地址写入 flash
 								 BLE_MAC_Edit = 1;
                  app_timer_set(MY_TIMER, TASK_APP, 20); 
 								 printf_string("storage_ok\n\r");
