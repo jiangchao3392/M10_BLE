@@ -94,10 +94,7 @@
 #include "gtl_task.h"
 #include "nvds.h"        // nvds definitions
 
-#include "adc.h"
-#include "pwm.h"
-#include "co_math.h" 
-#include "periph_setup.h"
+
 
 #ifdef CFG_PRINTF
 #include "app_console.h"
@@ -145,7 +142,7 @@ extern void my_llc_ch_map_req_ind (uint16_t conhdl, struct llcp_channel_map_req 
 struct gapm_start_advertise_cmd;
 extern uint8_t patched_gapm_adv_op_sanity(struct gapm_start_advertise_cmd *adv);
 																																																				
-extern bool needStopReset;
+
 /*
  * STRUCTURE DEFINITIONS
  ****************************************************************************************
@@ -619,19 +616,6 @@ uint16_t txCount=0,BeSecTmp[2] = {0,0};
 volatile	uint16_t lkeyDownCount=0;
 
 
-//ÒÔÏÂ  jc 2018.4.28Ìí¼Ó
-extern bool needStop_flag;
-extern uint16_t iseccnt4_flag ;
-extern	unsigned char  VIsenseCount;
-extern unsigned short  VIsense[5],VIsense_Avg;
-//extern volatile uint16_t resetTime =0, setTime = 0;     //¸´Î»Ê±¼ä¼ÆÊý
-extern unsigned char  VIsenseCount;
-extern uint16_t iseccnt4;
-extern volatile uint16_t resetTime;
-extern volatile uint16_t setTime;
-extern uint8_t MotorFlag;
-//ÒÔÉÏ
-
 #pragma pack (1)
 typedef struct
 {	
@@ -722,8 +706,8 @@ void KeyDispose(void)
 					ResetCnt=0;
 					
 					printf_string("\n duan an  MOTOR_RESET   ");
-					app_timer_set(MOTOR_RESET, TASK_APP, 20);                //µç»úÊÍ·Å
-                    //motor_reset_handleEx();
+					//app_timer_set(MOTOR_RESET, TASK_APP, 50);                //µç»úÊÍ·Å
+                    motor_reset_handleEx();
 					GPIO_SetActive(GPIO_PORT_2, GPIO_PIN_7);	   //¿ª5VµçÔ
 					delay_us(20);										
 					SetBeep();		  //·äÃùÆ÷Ïì 1Éù				
@@ -789,8 +773,8 @@ void KeyDispose(void)
 //					}
 //					GPIO_SetActive(GPIO_PORT_0, GPIO_PIN_0);
 					ResetCnt=0;
-					app_timer_set(MOTOR_RESET, TASK_APP, 20);		// µç»ú¸´Î»
-                    //motor_reset_handleEx();
+					//app_timer_set(MOTOR_RESET, TASK_APP, 50);		// µç»ú¸´Î»
+                    motor_reset_handleEx();
 					GPIO_SetActive(GPIO_PORT_2, GPIO_PIN_7);	   //¿ª5VµçÔ
 					delay_us(20);					
 					SetBeep();				//·äÃùÆ÷Ïì µÚ1Éù					
@@ -1176,9 +1160,9 @@ int main_func(void)
 #endif    
     
 		
-	//app_timer_set(MOTOR_RESET, TASK_APP,20);  //ÉÏµç³õÊ¼»¯£¬ËÉ¿ª
+		//app_timer_set(MOTOR_RESET, TASK_APP, 1);  //ÉÏµç³õÊ¼»¯£¬ËÉ¿ª
     motor_reset_handleEx();
-	//  delay_us(1000);
+	  delay_us(1000);
     app_timer_set(ADC_TIMER, TASK_APP, 20);  //¼ì²âµçÁ¿
 		
     /*
@@ -1486,8 +1470,8 @@ int main_func(void)
 /////////
 // µç»úËøËÀ					
                     printf_string("\n SUO SI app_timer_set(MOTOR_TIMER) ");										
-//                    app_timer_set(MOTOR_TIMER, TASK_APP, 1);					// µç»úËøËÀ	
-                    motor_handleEx();
+                    //app_timer_set(MOTOR_TIMER, TASK_APP, 20);					// µç»úËøËÀ	
+                                        motor_handleEx();
 										Motor = 1;				//µç»úÖÆ¶¯ËøËÀ±êÊ¶					
 										SwordClose =1;		
 										LEDCount = 0;
@@ -1535,9 +1519,9 @@ int main_func(void)
 /////////
 // µç»úËøËÀ					
                     printf_string("\n SUO SI app_timer_set(MOTOR_TIMER) ");										
-//                    app_timer_set(MOTOR_TIMER, TASK_APP, 20);					// µç»úËøËÀ
-                    motor_handleEx();                                      
-//                                        delay_ms(100);
+                   // app_timer_set(MOTOR_TIMER, TASK_APP, 20);					// µç»úËøËÀ
+                                    motor_handleEx();                                      
+                                        delay_ms(100);
 										Motor = 1;				//µç»úÖÆ¶¯ËøËÀ±êÊ¶					
 										SwordClose =1;		
 										LEDCount = 0;
@@ -1812,68 +1796,6 @@ int main_func(void)
 //				}
 ////			}
 		
-				
-				
-		if(!needStop_flag)
-		{
-            adc_enable_channel(ADC_CHANNEL_P02);        //µç»ú¶Â×ªµçÁ÷²ÉÑù£¬   ²ÉÑùµç×è 5.1Å·Ä·
-            VIsense[VIsenseCount] = adc_get_sample(); 
-            VIsenseCount++;
-            VIsense_Avg= (VIsense[0]+VIsense[1]+VIsense[2])/3;    //3´Î²ÉÑùµÄÆ½¾ùÖµ
-            if(VIsenseCount == 3)					     					   						
-            {
-                VIsenseCount = 0;
-            }		
-      
-            if(setTime > 80)
-            {
-//            needStop = true;
-				needStop_flag = true;
-					
-				MotorOn = 0; 					
-                GPIO_SetInactive(GPIO_PORT_2, GPIO_PIN_7);     //¹Ø±Õ µç»ú5VµçÔ´¹©µçÊ¹ÄÜ£¬  ¿ØÖÆAAT1218 EN¶Ë
-                GPIO_SetInactive(GPIO_PORT_0, GPIO_PIN_0);    //¹Ø±Õ µç»ú¹©µç¿ª¹Ø Q6¿ª¹ØÊ¹ÄÜ£¬ ¿ØÖÆ8050µÄB¼«¿ØÖÆ PMOS
-                MotorFlag = 0; 
-        }
-            if(VIsense_Avg>=0x0220)
-        {
-            
-            iseccnt4_flag=1;  //µ½´ïÑ¹ËõÁ¦¼«ÏÞ£¬¿ªÊ¼¼ÆÊ±£¬±£³ÖÁ¦500ms
-           
-        }
-        if(iseccnt4>60)  //¼«ÏÞÑ¹ËõÁ¦±£³ÖÊ±¼ä
-        {             
-//              needStop = true;
-			needStop_flag = true;										
-			MotorOn = 0; 					
-            GPIO_SetInactive(GPIO_PORT_2, GPIO_PIN_7);     //¹Ø±Õ µç»ú5VµçÔ´¹©µçÊ¹ÄÜ£¬  ¿ØÖÆAAT1218 EN¶Ë
-            GPIO_SetInactive(GPIO_PORT_0, GPIO_PIN_0);    //¹Ø±Õ µç»ú¹©µç¿ª¹Ø Q6¿ª¹ØÊ¹ÄÜ£¬ ¿ØÖÆ8050µÄB¼«¿ØÖÆ PMOS
-            MotorFlag = 0;
-        }
-    }
-//    if(!needStopReset)
-//    {
-//       if(resetTime > 4)
-//       {
-//            needStopReset = true;
-//            MotorOn = 1;		   //jc 2018.3.1¸ü¸ÄÎª1£¬Ô­À´Îª0£¬  ÅÐ¶ÏÒÀ¾ÝÎª  µç»ú¸´Î»±êÊ¶ MotorOn=1£¬±êÊ¶¸´Î»			
-//            GPIO_SetInactive(GPIO_PORT_2, GPIO_PIN_7);    //µç»ú5VµçÔ´¹©µç ,½ûÖ¹Ê¹ÄÜ£¬  P2_7¿ØÖÆAAT1218 EN¶Ë	
-//            GPIO_SetInactive(GPIO_PORT_0, GPIO_PIN_0);    //µç»ú¹©µç¿ª¹Ø Q6¿ª¹Ø½ûÖ¹Ê¹ÄÜ£¬P0_0¿ØÖÆ8050µÄB¼«¿ØÖÆ PMOS 	 		   
-//            MotorFlag = 0;
-//            resetTime = 0;
-//            
-//        }
-//    }
- 
-    
-				
-				
-				
-				
-				
-				
-				
-				
     }
 }
 

@@ -117,11 +117,6 @@
       <TargetDriverDllRegistry>
         <SetRegEntry>
           <Number>0</Number>
-          <Key>DLGUARM</Key>
-          <Name> 鹄</Name>
-        </SetRegEntry>
-        <SetRegEntry>
-          <Number>0</Number>
           <Key>JL2CM3</Key>
           <Name>-U20090928 -O78 -S2 -ZTIFSpeedSel5000 -A0 -C0 -JU1 -JI127.0.0.1 -JP0 -RST0 -N00("ARM CoreSight SW-DP") -D00(0BB11477) -L00(0) -TO18 -TC10000000 -TP21 -TDS8008 -TDT0 -TDC1F -TIEFFFFFFFF -TIP8 -TB1 -TFE0 -FO7 -FD0 -FC800 -FN0</Name>
         </SetRegEntry>
@@ -147,7 +142,7 @@
           <Type>0</Type>
           <LineNumber>269</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>536889378</Address>
+          <Address>536889290</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
@@ -163,7 +158,7 @@
           <Type>0</Type>
           <LineNumber>260</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>536889330</Address>
+          <Address>536889288</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
@@ -179,7 +174,7 @@
           <Type>0</Type>
           <LineNumber>262</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>536889346</Address>
+          <Address>536889300</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
@@ -195,7 +190,7 @@
           <Type>0</Type>
           <LineNumber>264</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>536889360</Address>
+          <Address>536889304</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
@@ -211,7 +206,7 @@
           <Type>0</Type>
           <LineNumber>258</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>536889320</Address>
+          <Address>536889280</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
@@ -227,7 +222,7 @@
           <Type>0</Type>
           <LineNumber>274</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>536889388</Address>
+          <Address>536889334</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
@@ -237,86 +232,6 @@
           <Filename>E:\杈撴恫鐩戞帶\M10Ver BLE 10.27_j20180322new\src\modules\app\src\app_project\throughput_eval_peripheral_fh\app_throughput_peripheral_proj.c</Filename>
           <ExecCommand></ExecCommand>
           <Expression>\\full_emb_sysram\../../../src/modules/app/src/app_project/throughput_eval_peripheral_fh/app_throughput_peripheral_proj.c\274</Expression>
-        </Bp>
-        <Bp>
-          <Number>6</Number>
-          <Type>0</Type>
-          <LineNumber>489</LineNumber>
-          <EnabledFlag>1</EnabledFlag>
-          <Address>536890128</Address>
-          <ByteObject>0</ByteObject>
-          <HtxType>0</HtxType>
-          <ManyObjects>0</ManyObjects>
-          <SizeOfObject>0</SizeOfObject>
-          <BreakByAccess>0</BreakByAccess>
-          <BreakIfRCount>1</BreakIfRCount>
-          <Filename>E:\杈撴恫鐩戞帶\M10Ver BLE 10.27_j20180322new\src\modules\app\src\app_project\throughput_eval_peripheral_fh\app_throughput_peripheral_proj.c</Filename>
-          <ExecCommand></ExecCommand>
-          <Expression>\\full_emb_sysram\../../../src/modules/app/src/app_project/throughput_eval_peripheral_fh/app_throughput_peripheral_proj.c\489</Expression>
-        </Bp>
-        <Bp>
-          <Number>7</Number>
-          <Type>0</Type>
-          <LineNumber>484</LineNumber>
-          <EnabledFlag>1</EnabledFlag>
-          <Address>536890096</Address>
-          <ByteObject>0</ByteObject>
-          <HtxType>0</HtxType>
-          <ManyObjects>0</ManyObjects>
-          <SizeOfObject>0</SizeOfObject>
-          <BreakByAccess>0</BreakByAccess>
-          <BreakIfRCount>1</BreakIfRCount>
-          <Filename>E:\杈撴恫鐩戞帶\M10Ver BLE 10.27_j20180322new\src\modules\app\src\app_project\throughput_eval_peripheral_fh\app_throughput_peripheral_proj.c</Filename>
-          <ExecCommand></ExecCommand>
-          <Expression>\\full_emb_sysram\../../../src/modules/app/src/app_project/throughput_eval_peripheral_fh/app_throughput_peripheral_proj.c\484</Expression>
-        </Bp>
-        <Bp>
-          <Number>8</Number>
-          <Type>0</Type>
-          <LineNumber>1163</LineNumber>
-          <EnabledFlag>1</EnabledFlag>
-          <Address>536873904</Address>
-          <ByteObject>0</ByteObject>
-          <HtxType>0</HtxType>
-          <ManyObjects>0</ManyObjects>
-          <SizeOfObject>0</SizeOfObject>
-          <BreakByAccess>0</BreakByAccess>
-          <BreakIfRCount>1</BreakIfRCount>
-          <Filename>E:\杈撴恫鐩戞帶\M10Ver BLE 10.27_j20180322new\src\plf\refip\src\arch\main\ble\arch_main.c</Filename>
-          <ExecCommand></ExecCommand>
-          <Expression>\\full_emb_sysram\../../../src/plf/refip/src/arch/main/ble/arch_main.c\1163</Expression>
-        </Bp>
-        <Bp>
-          <Number>9</Number>
-          <Type>0</Type>
-          <LineNumber>485</LineNumber>
-          <EnabledFlag>1</EnabledFlag>
-          <Address>536890104</Address>
-          <ByteObject>0</ByteObject>
-          <HtxType>0</HtxType>
-          <ManyObjects>0</ManyObjects>
-          <SizeOfObject>0</SizeOfObject>
-          <BreakByAccess>0</BreakByAccess>
-          <BreakIfRCount>1</BreakIfRCount>
-          <Filename>E:\杈撴恫鐩戞帶\M10Ver BLE 10.27_j20180322new\src\modules\app\src\app_project\throughput_eval_peripheral_fh\app_throughput_peripheral_proj.c</Filename>
-          <ExecCommand></ExecCommand>
-          <Expression>\\full_emb_sysram\../../../src/modules/app/src/app_project/throughput_eval_peripheral_fh/app_throughput_peripheral_proj.c\485</Expression>
-        </Bp>
-        <Bp>
-          <Number>10</Number>
-          <Type>0</Type>
-          <LineNumber>487</LineNumber>
-          <EnabledFlag>1</EnabledFlag>
-          <Address>536890112</Address>
-          <ByteObject>0</ByteObject>
-          <HtxType>0</HtxType>
-          <ManyObjects>0</ManyObjects>
-          <SizeOfObject>0</SizeOfObject>
-          <BreakByAccess>0</BreakByAccess>
-          <BreakIfRCount>1</BreakIfRCount>
-          <Filename>E:\杈撴恫鐩戞帶\M10Ver BLE 10.27_j20180322new\src\modules\app\src\app_project\throughput_eval_peripheral_fh\app_throughput_peripheral_proj.c</Filename>
-          <ExecCommand></ExecCommand>
-          <Expression>\\full_emb_sysram\../../../src/modules/app/src/app_project/throughput_eval_peripheral_fh/app_throughput_peripheral_proj.c\487</Expression>
         </Bp>
       </Breakpoint>
       <WatchWindow1>
@@ -926,7 +841,7 @@
       <GroupNumber>9</GroupNumber>
       <FileNumber>38</FileNumber>
       <FileType>1</FileType>
-      <tvExp>1</tvExp>
+      <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\..\src\modules\app\src\app_project\throughput_eval_peripheral_fh\app_throughput_peripheral_proj.c</PathWithFileName>
