@@ -6,16 +6,16 @@
 .\out\gapm.o: .\..\..\..\src\modules\rwip\api\rwip_config.h
 .\out\gapm.o: .\..\..\..\src\ip\ble\hl\src\rwble_hl\rwble_hl_config.h
 .\out\gapm.o: .\..\..\..\src\plf\refip\src\arch\arch.h
-.\out\gapm.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
+.\out\gapm.o: D:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
 .\out\gapm.o: .\..\..\..\src\plf\refip\src\arch\compiler\rvds\compiler.h
-.\out\gapm.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\stdbool.h
+.\out\gapm.o: D:\Keil_v5\ARM\ARMCC\Bin\..\include\stdbool.h
 .\out\gapm.o: .\..\..\..\src\plf\refip\src\arch\arch_sleep.h
 .\out\gapm.o: .\..\..\..\src\plf\refip\src\arch\ll\rvds\ll.h
 .\out\gapm.o: .\..\..\..\src\plf\refip\src\arch\arch.h
 .\out\gapm.o: .\..\..\..\src\dialog\include\reg_intc.h
 .\out\gapm.o: .\..\..\..\src\dialog\include\_reg_intc.h
 .\out\gapm.o: .\..\..\..\src\plf\refip\src\driver\reg\reg_access.h
-.\out\gapm.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
+.\out\gapm.o: D:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
 .\out\gapm.o: .\..\..\..\src\dialog\include\_reg_ble_em_et.h
 .\out\gapm.o: .\..\..\..\src\dialog\include\ARMCM0.h
 .\out\gapm.o: .\..\..\..\src\dialog\include\global_io.h
@@ -26,7 +26,7 @@
 .\out\gapm.o: .\..\..\..\src\dialog\include\system_ARMCM0.h
 .\out\gapm.o: .\..\..\..\src\ip\ble\hl\src\host\gap\gap.h
 .\out\gapm.o: .\..\..\..\src\modules\common\api\co_bt.h
-.\out\gapm.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\stddef.h
+.\out\gapm.o: D:\Keil_v5\ARM\ARMCC\Bin\..\include\stddef.h
 .\out\gapm.o: .\..\..\..\src\ip\ble\hl\src\host\gap\gap_cfg.h
 .\out\gapm.o: .\..\..\..\src\ip\ble\hl\src\host\smp\smpm\smpm.h
 .\out\gapm.o: .\..\..\..\src\ip\ble\hl\src\host\smp\smp_common.h
@@ -46,7 +46,7 @@
 .\out\gapm.o: .\..\..\..\src\ip\ble\hl\src\host\att\attm\attm_cfg.h
 .\out\gapm.o: .\..\..\..\src\ip\ble\hl\src\host\att\att.h
 .\out\gapm.o: .\..\..\..\src\ip\ble\hl\src\host\att\attm\attm_db.h
-.\out\gapm.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
+.\out\gapm.o: D:\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
 .\out\gapm.o: .\..\..\..\src\ip\ble\hl\src\host\att\attm\attm_task.h
 .\out\gapm.o: .\..\..\..\src\ip\ble\hl\src\host\gatt\gattm\gattm_task.h
 .\out\gapm.o: .\..\..\..\src\ip\ble\hl\src\host\gatt\gatt.h

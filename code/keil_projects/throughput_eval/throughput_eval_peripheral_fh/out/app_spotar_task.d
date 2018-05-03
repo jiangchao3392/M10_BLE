@@ -6,16 +6,16 @@
 .\out\app_spotar_task.o: .\..\..\..\src\modules\rwip\api\rwip_config.h
 .\out\app_spotar_task.o: .\..\..\..\src\ip\ble\hl\src\rwble_hl\rwble_hl_config.h
 .\out\app_spotar_task.o: .\..\..\..\src\plf\refip\src\arch\arch.h
-.\out\app_spotar_task.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
+.\out\app_spotar_task.o: D:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
 .\out\app_spotar_task.o: .\..\..\..\src\plf\refip\src\arch\compiler\rvds\compiler.h
-.\out\app_spotar_task.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\stdbool.h
+.\out\app_spotar_task.o: D:\Keil_v5\ARM\ARMCC\Bin\..\include\stdbool.h
 .\out\app_spotar_task.o: .\..\..\..\src\plf\refip\src\arch\arch_sleep.h
 .\out\app_spotar_task.o: .\..\..\..\src\plf\refip\src\arch\ll\rvds\ll.h
 .\out\app_spotar_task.o: .\..\..\..\src\plf\refip\src\arch\arch.h
 .\out\app_spotar_task.o: .\..\..\..\src\dialog\include\reg_intc.h
 .\out\app_spotar_task.o: .\..\..\..\src\dialog\include\_reg_intc.h
 .\out\app_spotar_task.o: .\..\..\..\src\plf\refip\src\driver\reg\reg_access.h
-.\out\app_spotar_task.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
+.\out\app_spotar_task.o: D:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
 .\out\app_spotar_task.o: .\..\..\..\src\dialog\include\_reg_ble_em_et.h
 .\out\app_spotar_task.o: .\..\..\..\src\dialog\include\ARMCM0.h
 .\out\app_spotar_task.o: .\..\..\..\src\dialog\include\global_io.h
@@ -26,7 +26,7 @@
 .\out\app_spotar_task.o: .\..\..\..\src\dialog\include\system_ARMCM0.h
 .\out\app_spotar_task.o: ..\..\..\src\modules\app\src\app_profiles\spotar\app_spotar.h
 .\out\app_spotar_task.o: .\..\..\..\src\modules\common\api\co_bt.h
-.\out\app_spotar_task.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\stddef.h
+.\out\app_spotar_task.o: D:\Keil_v5\ARM\ARMCC\Bin\..\include\stddef.h
 .\out\app_spotar_task.o: ..\..\..\src\plf\refip\src\driver\spi\spi.h
 .\out\app_spotar_task.o: .\..\..\..\src\plf\refip\src\driver\gpio\gpio.h
 .\out\app_spotar_task.o: ..\..\..\src\ip\ble\hl\src\profiles\spota\spotar\spotar.h
@@ -35,7 +35,7 @@
 .\out\app_spotar_task.o: .\..\..\..\src\modules\ke\api\ke_config.h
 .\out\app_spotar_task.o: .\..\..\..\src\modules\common\api\co_list.h
 .\out\app_spotar_task.o: .\..\..\..\src\ip\ble\hl\src\host\att\atts\atts.h
-.\out\app_spotar_task.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
+.\out\app_spotar_task.o: D:\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
 .\out\app_spotar_task.o: .\..\..\..\src\ip\ble\hl\src\host\att\atts\atts_task.h
 .\out\app_spotar_task.o: .\..\..\..\src\modules\rwip\api\rwip.h
 .\out\app_spotar_task.o: .\..\..\..\src\ip\ble\hl\src\host\att\attm\attm.h

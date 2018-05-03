@@ -5,16 +5,16 @@
 .\out\uart.o: .\..\..\..\src\dialog\include\datasheet.h
 .\out\uart.o: .\..\..\..\src\plf\refip\src\driver\gpio\gpio.h
 .\out\uart.o: .\..\..\..\src\plf\refip\src\arch\arch.h
-.\out\uart.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
+.\out\uart.o: D:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
 .\out\uart.o: .\..\..\..\src\plf\refip\src\arch\compiler\rvds\compiler.h
-.\out\uart.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\stdbool.h
+.\out\uart.o: D:\Keil_v5\ARM\ARMCC\Bin\..\include\stdbool.h
 .\out\uart.o: .\..\..\..\src\plf\refip\src\arch\arch_sleep.h
 .\out\uart.o: .\..\..\..\src\plf\refip\src\arch\ll\rvds\ll.h
 .\out\uart.o: .\..\..\..\src\plf\refip\src\arch\arch.h
 .\out\uart.o: .\..\..\..\src\dialog\include\reg_intc.h
 .\out\uart.o: .\..\..\..\src\dialog\include\_reg_intc.h
 .\out\uart.o: .\..\..\..\src\plf\refip\src\driver\reg\reg_access.h
-.\out\uart.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
+.\out\uart.o: D:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
 .\out\uart.o: .\..\..\..\src\dialog\include\_reg_ble_em_et.h
 .\out\uart.o: .\..\..\..\src\dialog\include\ARMCM0.h
 .\out\uart.o: .\..\..\..\src\dialog\include\core_cm0.h
@@ -29,7 +29,7 @@
 .\out\uart.o: .\..\..\..\src\modules\rwip\api\rwip_config.h
 .\out\uart.o: .\..\..\..\src\ip\ble\hl\src\rwble_hl\rwble_hl_config.h
 .\out\uart.o: .\..\..\..\src\modules\ke\api\ke_msg.h
-.\out\uart.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\stddef.h
+.\out\uart.o: D:\Keil_v5\ARM\ARMCC\Bin\..\include\stddef.h
 .\out\uart.o: .\..\..\..\src\modules\ke\api\ke_config.h
 .\out\uart.o: .\..\..\..\src\modules\common\api\co_list.h
 .\out\uart.o: .\..\..\..\src\modules\common\api\co_bt.h
@@ -57,7 +57,7 @@
 .\out\uart.o: ..\..\..\src\plf\refip\src\driver\spi\spi.h
 .\out\uart.o: ..\..\..\src\ip\ble\hl\src\profiles\spota\spotar\spotar.h
 .\out\uart.o: .\..\..\..\src\ip\ble\hl\src\host\att\atts\atts.h
-.\out\uart.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
+.\out\uart.o: D:\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
 .\out\uart.o: .\..\..\..\src\ip\ble\hl\src\host\att\atts\atts_task.h
 .\out\uart.o: .\..\..\..\src\modules\rwip\api\rwip.h
 .\out\uart.o: .\..\..\..\src\ip\ble\hl\src\host\att\atts\atts.h

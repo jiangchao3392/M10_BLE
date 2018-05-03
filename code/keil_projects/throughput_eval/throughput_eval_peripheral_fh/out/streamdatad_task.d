@@ -6,16 +6,16 @@
 .\out\streamdatad_task.o: .\..\..\..\src\ip\ble\ll\src\rwble\rwble_config.h
 .\out\streamdatad_task.o: .\..\..\..\src\ip\ble\hl\src\rwble_hl\rwble_hl_config.h
 .\out\streamdatad_task.o: .\..\..\..\src\plf\refip\src\arch\arch.h
-.\out\streamdatad_task.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
+.\out\streamdatad_task.o: D:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
 .\out\streamdatad_task.o: .\..\..\..\src\plf\refip\src\arch\compiler\rvds\compiler.h
-.\out\streamdatad_task.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\stdbool.h
+.\out\streamdatad_task.o: D:\Keil_v5\ARM\ARMCC\Bin\..\include\stdbool.h
 .\out\streamdatad_task.o: .\..\..\..\src\plf\refip\src\arch\arch_sleep.h
 .\out\streamdatad_task.o: .\..\..\..\src\plf\refip\src\arch\ll\rvds\ll.h
 .\out\streamdatad_task.o: .\..\..\..\src\plf\refip\src\arch\arch.h
 .\out\streamdatad_task.o: .\..\..\..\src\dialog\include\reg_intc.h
 .\out\streamdatad_task.o: .\..\..\..\src\dialog\include\_reg_intc.h
 .\out\streamdatad_task.o: .\..\..\..\src\plf\refip\src\driver\reg\reg_access.h
-.\out\streamdatad_task.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
+.\out\streamdatad_task.o: D:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
 .\out\streamdatad_task.o: .\..\..\..\src\dialog\include\_reg_ble_em_et.h
 .\out\streamdatad_task.o: .\..\..\..\src\dialog\include\ARMCM0.h
 .\out\streamdatad_task.o: .\..\..\..\src\dialog\include\global_io.h
@@ -26,7 +26,7 @@
 .\out\streamdatad_task.o: .\..\..\..\src\dialog\include\system_ARMCM0.h
 .\out\streamdatad_task.o: .\..\..\..\src\ip\ble\hl\src\host\gap\gap.h
 .\out\streamdatad_task.o: .\..\..\..\src\modules\common\api\co_bt.h
-.\out\streamdatad_task.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\stddef.h
+.\out\streamdatad_task.o: D:\Keil_v5\ARM\ARMCC\Bin\..\include\stddef.h
 .\out\streamdatad_task.o: .\..\..\..\src\ip\ble\hl\src\host\gap\gap_cfg.h
 .\out\streamdatad_task.o: .\..\..\..\src\ip\ble\hl\src\host\smp\smpm\smpm.h
 .\out\streamdatad_task.o: .\..\..\..\src\ip\ble\hl\src\host\smp\smp_common.h
@@ -45,7 +45,7 @@
 .\out\streamdatad_task.o: .\..\..\..\src\ip\ble\hl\src\host\att\attm\attm_util.h
 .\out\streamdatad_task.o: .\..\..\..\src\ip\ble\hl\src\host\att\atts\atts_util.h
 .\out\streamdatad_task.o: .\..\..\..\src\ip\ble\hl\src\host\att\atts\atts.h
-.\out\streamdatad_task.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
+.\out\streamdatad_task.o: D:\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
 .\out\streamdatad_task.o: .\..\..\..\src\ip\ble\hl\src\host\att\atts\atts_task.h
 .\out\streamdatad_task.o: .\..\..\..\src\modules\rwip\api\rwip.h
 .\out\streamdatad_task.o: .\..\..\..\src\ip\ble\hl\src\host\att\atts\atts.h
@@ -58,7 +58,7 @@
 .\out\streamdatad_task.o: .\..\..\..\src\ip\ble\hl\src\host\l2c\l2cm\l2cm_task.h
 .\out\streamdatad_task.o: .\..\..\..\src\ip\ble\ll\src\controller\llc\llc_task.h
 .\out\streamdatad_task.o: .\..\..\..\src\modules\common\api\co_buf.h
-.\out\streamdatad_task.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\stdlib.h
+.\out\streamdatad_task.o: D:\Keil_v5\ARM\ARMCC\Bin\..\include\stdlib.h
 .\out\streamdatad_task.o: .\..\..\..\src\ip\ble\hl\src\profiles\prf_utils.h
 .\out\streamdatad_task.o: .\..\..\..\src\ip\ble\hl\src\profiles\prf_types.h
 .\out\streamdatad_task.o: .\..\..\..\src\ip\ble\hl\src\host\gap\gapc\gapc.h

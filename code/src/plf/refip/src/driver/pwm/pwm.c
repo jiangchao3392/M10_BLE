@@ -29,7 +29,7 @@ volatile struct __TIMER0_CTRL_REG timer0_ctrl_reg __attribute__((at(TIMER0_CTRL_
 volatile struct __TRIPLE_PWM_CTRL_REG triple_pwm_ctrl_reg __attribute__((at(TRIPLE_PWM_CTRL_REG)));
 uint8_t timer[10];
 uint16_t DropCnt = 0,opencount=0;
-uint16_t iSecCount = 0,LEDCount=0,SystemCount=0,iSecCnt2=0,iseccnt3=0,iseccnt4=0,iseccnt4_flag;
+uint16_t iSecCount = 0,LEDCount=0,SystemCount=0,iSecCnt2=0,iseccnt3=0,iseccnt4=0,iseccnt4_flag,iseccnt5=0,iseccnt5_flag;
 uint16_t ADCcount = 0;   //获取电量计时计数
 volatile uint16_t resetTime =0, setTime = 0;     //复位时间计数
 extern uint16_t BeSecTmp[2];
@@ -223,21 +223,29 @@ void SWTIM_Handler(void)
 	 
 	 DropCnt++;    //两液滴间隔时间计时 500us
 	 CNT++;
-	 if(CNT>=20)
+	 if(CNT>=20)   //10ms
 	   {
              
 			 CNT=0;			 
 			 timer[0]++;
-             setTime++;
+       setTime++;   
+
+       resetTime++;		
+			 
 			 timer[6]++;
 //			 iWaringSend--;			
 			if(timer[2]>0)
 			{
 				timer[2]--;   
 			}
+			
 			if(iseccnt4_flag==1)
 			{
-			 iseccnt4++;   //压缩后保持力计时
+			 iseccnt4++;   //压缩后保持力计时  10ms
+			}
+			if(iseccnt5_flag==1)
+			{
+			 iseccnt5++;   //压缩后保持力计时  10ms
 			}
 			 
 	   }
@@ -256,7 +264,7 @@ void SWTIM_Handler(void)
 			if(BeSecTmp[1]>2) 	BeSecTmp[1]--;	
 			if(RFOFF > 0)RFOFF--;	
             timer[5]--; 
-            resetTime++;
+           
             
 		}
 		

@@ -1,6 +1,0 @@
-cd F:\WT_DUAL_Image
-cd D:\WT_DUAL_Image
-CD D:\项目文件\智慧护理 M10\M10Ver3.3.2从带空中升级 10.10 电机\M10Ver3.3.2从带空中升级20170407新ADC\WT_DUAL_Image
-hex2bin -e bin M10 BLE10.hex
-
-mkimage single Suota_Test.bin ble_580_sw_version.h M10 BLE10.img

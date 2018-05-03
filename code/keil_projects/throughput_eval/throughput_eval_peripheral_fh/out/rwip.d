@@ -6,16 +6,16 @@
 .\out\rwip.o: .\..\..\..\src\modules\rwip\api\rwip_config.h
 .\out\rwip.o: .\..\..\..\src\ip\ble\hl\src\rwble_hl\rwble_hl_config.h
 .\out\rwip.o: .\..\..\..\src\plf\refip\src\arch\arch.h
-.\out\rwip.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
+.\out\rwip.o: D:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
 .\out\rwip.o: .\..\..\..\src\plf\refip\src\arch\compiler\rvds\compiler.h
-.\out\rwip.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\stdbool.h
+.\out\rwip.o: D:\Keil_v5\ARM\ARMCC\Bin\..\include\stdbool.h
 .\out\rwip.o: .\..\..\..\src\plf\refip\src\arch\arch_sleep.h
 .\out\rwip.o: .\..\..\..\src\plf\refip\src\arch\ll\rvds\ll.h
 .\out\rwip.o: .\..\..\..\src\plf\refip\src\arch\arch.h
 .\out\rwip.o: .\..\..\..\src\dialog\include\reg_intc.h
 .\out\rwip.o: .\..\..\..\src\dialog\include\_reg_intc.h
 .\out\rwip.o: .\..\..\..\src\plf\refip\src\driver\reg\reg_access.h
-.\out\rwip.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
+.\out\rwip.o: D:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
 .\out\rwip.o: .\..\..\..\src\dialog\include\_reg_ble_em_et.h
 .\out\rwip.o: .\..\..\..\src\dialog\include\ARMCM0.h
 .\out\rwip.o: .\..\..\..\src\dialog\include\global_io.h
@@ -33,7 +33,7 @@
 .\out\rwip.o: .\..\..\..\src\ip\ble\hl\src\host\gap\gapc\gapc.h
 .\out\rwip.o: .\..\..\..\src\modules\ke\api\ke_task.h
 .\out\rwip.o: .\..\..\..\src\modules\ke\api\ke_msg.h
-.\out\rwip.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\stddef.h
+.\out\rwip.o: D:\Keil_v5\ARM\ARMCC\Bin\..\include\stddef.h
 .\out\rwip.o: .\..\..\..\src\modules\ke\api\ke_config.h
 .\out\rwip.o: .\..\..\..\src\modules\common\api\co_list.h
 .\out\rwip.o: .\..\..\..\src\ip\ble\hl\src\host\gap\gap.h
@@ -59,7 +59,7 @@
 .\out\rwip.o: .\..\..\..\src\ip\ble\hl\src\host\att\attc\attc.h
 .\out\rwip.o: .\..\..\..\src\ip\ble\hl\src\host\l2c\l2cc\l2cc_task.h
 .\out\rwip.o: .\..\..\..\src\ip\ble\hl\src\host\att\atts\atts.h
-.\out\rwip.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
+.\out\rwip.o: D:\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
 .\out\rwip.o: .\..\..\..\src\ip\ble\hl\src\host\att\atts\atts_task.h
 .\out\rwip.o: .\..\..\..\src\ip\ble\hl\src\host\att\atts\atts.h
 .\out\rwip.o: .\..\..\..\src\modules\app\api\app.h
@@ -70,7 +70,7 @@
 .\out\rwip.o: .\..\..\..\src\ip\ble\ll\src\controller\llc\llc.h
 .\out\rwip.o: .\..\..\..\src\ip\ble\ll\src\controller\llc\llc_cntl.h
 .\out\rwip.o: .\..\..\..\src\modules\common\api\co_buf.h
-.\out\rwip.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\stdlib.h
+.\out\rwip.o: D:\Keil_v5\ARM\ARMCC\Bin\..\include\stdlib.h
 .\out\rwip.o: .\..\..\..\src\ip\ble\ll\src\controller\llm\llm.h
 .\out\rwip.o: .\..\..\..\src\modules\common\api\co_math.h
 .\out\rwip.o: .\..\..\..\src\ip\ble\ll\src\controller\llm\llm_task.h

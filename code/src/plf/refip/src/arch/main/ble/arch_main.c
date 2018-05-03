@@ -1796,6 +1796,9 @@ int main_func(void)
 //				}
 ////			}
 		
+				Press_EXE();
+				Release_EXE();
+				
     }
 }
 

@@ -6,16 +6,16 @@
 .\out\spotar.o: .\..\..\..\src\ip\ble\ll\src\rwble\rwble_config.h
 .\out\spotar.o: .\..\..\..\src\ip\ble\hl\src\rwble_hl\rwble_hl_config.h
 .\out\spotar.o: .\..\..\..\src\plf\refip\src\arch\arch.h
-.\out\spotar.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
+.\out\spotar.o: D:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
 .\out\spotar.o: .\..\..\..\src\plf\refip\src\arch\compiler\rvds\compiler.h
-.\out\spotar.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\stdbool.h
+.\out\spotar.o: D:\Keil_v5\ARM\ARMCC\Bin\..\include\stdbool.h
 .\out\spotar.o: .\..\..\..\src\plf\refip\src\arch\arch_sleep.h
 .\out\spotar.o: .\..\..\..\src\plf\refip\src\arch\ll\rvds\ll.h
 .\out\spotar.o: .\..\..\..\src\plf\refip\src\arch\arch.h
 .\out\spotar.o: .\..\..\..\src\dialog\include\reg_intc.h
 .\out\spotar.o: .\..\..\..\src\dialog\include\_reg_intc.h
 .\out\spotar.o: .\..\..\..\src\plf\refip\src\driver\reg\reg_access.h
-.\out\spotar.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
+.\out\spotar.o: D:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
 .\out\spotar.o: .\..\..\..\src\dialog\include\_reg_ble_em_et.h
 .\out\spotar.o: .\..\..\..\src\dialog\include\ARMCM0.h
 .\out\spotar.o: .\..\..\..\src\dialog\include\global_io.h
@@ -27,7 +27,7 @@
 .\out\spotar.o: .\..\..\..\src\ip\ble\hl\src\host\gap\gapc\gapc.h
 .\out\spotar.o: .\..\..\..\src\modules\ke\api\ke_task.h
 .\out\spotar.o: .\..\..\..\src\modules\ke\api\ke_msg.h
-.\out\spotar.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\stddef.h
+.\out\spotar.o: D:\Keil_v5\ARM\ARMCC\Bin\..\include\stddef.h
 .\out\spotar.o: .\..\..\..\src\modules\ke\api\ke_config.h
 .\out\spotar.o: .\..\..\..\src\modules\common\api\co_list.h
 .\out\spotar.o: .\..\..\..\src\ip\ble\hl\src\host\gap\gap.h
@@ -40,7 +40,7 @@
 .\out\spotar.o: .\..\..\..\src\ip\ble\ll\src\controller\llc\llc_task.h
 .\out\spotar.o: ..\..\..\src\ip\ble\hl\src\profiles\spota\spotar\spotar.h
 .\out\spotar.o: .\..\..\..\src\ip\ble\hl\src\host\att\atts\atts.h
-.\out\spotar.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
+.\out\spotar.o: D:\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
 .\out\spotar.o: .\..\..\..\src\ip\ble\hl\src\host\att\atts\atts_task.h
 .\out\spotar.o: .\..\..\..\src\modules\rwip\api\rwip.h
 .\out\spotar.o: .\..\..\..\src\ip\ble\hl\src\host\att\attm\attm.h

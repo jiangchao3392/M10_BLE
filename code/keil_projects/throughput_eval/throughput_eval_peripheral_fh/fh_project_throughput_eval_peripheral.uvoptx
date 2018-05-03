@@ -146,24 +146,7 @@
           <Name></Name>
         </SetRegEntry>
       </TargetDriverDllRegistry>
-      <Breakpoint>
-        <Bp>
-          <Number>0</Number>
-          <Type>0</Type>
-          <LineNumber>1358</LineNumber>
-          <EnabledFlag>1</EnabledFlag>
-          <Address>536874224</Address>
-          <ByteObject>0</ByteObject>
-          <HtxType>0</HtxType>
-          <ManyObjects>0</ManyObjects>
-          <SizeOfObject>0</SizeOfObject>
-          <BreakByAccess>0</BreakByAccess>
-          <BreakIfRCount>1</BreakIfRCount>
-          <Filename>.\..\..\..\src\plf\refip\src\arch\main\ble\arch_main.c</Filename>
-          <ExecCommand></ExecCommand>
-          <Expression>\\full_emb_sysram\../../../src/plf/refip/src/arch/main/ble/arch_main.c\1358</Expression>
-        </Bp>
-      </Breakpoint>
+      <Breakpoint/>
       <MemoryWindow1>
         <Mm>
           <WinNumber>1</WinNumber>
@@ -759,7 +742,7 @@
       <GroupNumber>9</GroupNumber>
       <FileNumber>38</FileNumber>
       <FileType>1</FileType>
-      <tvExp>0</tvExp>
+      <tvExp>1</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\..\src\modules\app\src\app_project\throughput_eval_peripheral_fh\app_throughput_peripheral_proj.c</PathWithFileName>

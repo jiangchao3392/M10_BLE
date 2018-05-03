@@ -4,5 +4,5 @@
 .\out\adc.o: ..\..\..\src\plf\refip\src\driver\adc\adc.h
 .\out\adc.o: .\..\..\..\src\dialog\include\global_io.h
 .\out\adc.o: .\..\..\..\src\dialog\include\datasheet.h
-.\out\adc.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
-.\out\adc.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\stdbool.h
+.\out\adc.o: D:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
+.\out\adc.o: D:\Keil_v5\ARM\ARMCC\Bin\..\include\stdbool.h

@@ -5,8 +5,8 @@
 .\out\system_armcm0.o: .\..\..\..\src\dialog\include\global_io.h
 .\out\system_armcm0.o: .\..\..\..\src\dialog\include\datasheet.h
 .\out\system_armcm0.o: .\..\..\..\src\dialog\include\core_cm0.h
-.\out\system_armcm0.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
+.\out\system_armcm0.o: D:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
 .\out\system_armcm0.o: .\..\..\..\src\dialog\include\core_cmInstr.h
 .\out\system_armcm0.o: .\..\..\..\src\dialog\include\core_cmFunc.h
 .\out\system_armcm0.o: .\..\..\..\src\dialog\include\system_ARMCM0.h
-.\out\system_armcm0.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
+.\out\system_armcm0.o: D:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
