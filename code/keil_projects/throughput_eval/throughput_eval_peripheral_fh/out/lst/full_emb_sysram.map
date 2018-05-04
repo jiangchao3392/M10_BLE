@@ -2467,53 +2467,53 @@ Image component sizes
 
       Code (inc. data)   RO Data    RW Data    ZI Data      Debug   Object Name
 
-       296         16          0          0          0       2421   adc.o
-       404         62         16          0         13       4558   app.o
-        64          4          0          0          0       1641   app_dis.o
-       356         60          0          0          0       2310   app_dis_task.o
-       176         22          0          0         36       3295   app_sec.o
-       292         28          0          0          0       2492   app_sec_task.o
-      2184         60          0          0        372      12558   app_spotar.o
-       352         12          0          0          0       2931   app_spotar_task.o
-        64         10          0          0          0       3136   app_streamdatad.o
-        38          0          0          0          0       1635   app_streamdatad_task.o
-       316          8        216          0          1       6016   app_task.o
-      2056        210          0          1         39      11546   app_throughput_peripheral_proj.o
-      3960        636         54         12       1563     170936   arch_main.o
-       272         20          0          0          4       4672   arch_sleep.o
-       724         64          0          0         20      82898   arch_system.o
+       296         16          0          0          0       2329   adc.o
+       404         62         16          0         13       4378   app.o
+        64          4          0          0          0       1545   app_dis.o
+       356         60          0          0          0       2218   app_dis_task.o
+       176         22          0          0         36       3111   app_sec.o
+       292         28          0          0          0       2400   app_sec_task.o
+      2184         60          0          0        372      12378   app_spotar.o
+       352         12          0          0          0       2843   app_spotar_task.o
+        64         10          0          0          0       3004   app_streamdatad.o
+        38          0          0          0          0       1547   app_streamdatad_task.o
+       316          8        216          0          1       5796   app_task.o
+      2056        210          0          1         39      11414   app_throughput_peripheral_proj.o
+      3960        636         54         12       1563     169776   arch_main.o
+       272         20          0          0          4       4484   arch_sleep.o
+       724         64          0          0         20      82626   arch_system.o
        236         18          0          0          0         72   atts_task.obj
-       108         22        160          0       1536        808   boot_vectors.o
+       108         22        160          0       1536        764   boot_vectors.o
        196         12          0          0          0        108   ch_map.obj
-       164         14        291          0         18       6325   diss.o
-       252         12         64          0          1       4332   diss_task.o
-         0          0        100          0          0       1280   gapm.o
+       164         14        291          0         18       6097   diss.o
+       252         12         64          0          1       4148   diss_task.o
+         0          0        100          0          0       1192   gapm.o
        384         38          0          0          0        112   gapm_util.obj
-      1372         94         21          0        196      16825   gpio.o
-        92          8          0          0          0      93966   hardfault_handler.o
-         2          0        352          0       3736       3024   jump_table.o
+      1372         94         21          0        196      16241   gpio.o
+        92          8          0          0          0      93786   hardfault_handler.o
+         2          0        352          0       3736       2892   jump_table.o
        184         18          0          0          0         96   ke_task.obj
-       140         16          0          0          0       9221   nmi_handler.o
-       632         30          0        164          6       8123   nvds.o
-      1688         46          0         19          6       7155   periph_setup.o
-       320         36          0          0          0       6895   prf_utils.o
-       480         68          0          0         56      15267   pwm.o
-       744        176          0          0          0      65060   rf_580.o
-       436         42          0          0          1      63749   rwble.o
-       392         46          0          0          0      63386   rwip.o
+       140         16          0          0          0       9089   nmi_handler.o
+       632         30          0        164          6       7939   nvds.o
+      1688         46          0         19          6       6975   periph_setup.o
+       320         36          0          0          0       6715   prf_utils.o
+       480         68          0          0         56      14583   pwm.o
+       744        176          0          0          0      64880   rf_580.o
+       436         42          0          0          1      63573   rwble.o
+       392         46          0          0          0      63250   rwip.o
        236          8          0          0          0        136   smpc.obj
        524          6          0          0          0         84   smpc_task.obj
-       328          8          0          0          2       3011   spi.o
-      1216         18         80          0         16       9850   spi_flash.o
-       124         14        114        114          8       5856   spotar.o
-      1116         74         80          0          1       6470   spotar_task.o
-        36          8         16          0         40       3981   streamdatad.o
-       500         44        214          0          8       5738   streamdatad_task.o
-        84         14          0          0          0     100697   system_armcm0.o
-       288         18          0          0         76       8922   uart.o
+       328          8          0          0          2       2879   spi.o
+      1216         18         80          0         16       9710   spi_flash.o
+       124         14        114        114          8       5672   spotar.o
+      1116         74         80          0          1       6294   spotar_task.o
+        36          8         16          0         40       3805   streamdatad.o
+       500         44        214          0          8       5554   streamdatad_task.o
+        84         14          0          0          0     100521   system_armcm0.o
+       288         18          0          0         76       8734   uart.o
 
     ----------------------------------------------------------------------
-     25176       2568       1852        312       7800     823594   Object Totals
+     25176       2568       1852        312       7800     815750   Object Totals
       1344        448         64          0         32          0   (incl. Generated)
          4          0         10          2         13          0   (incl. Padding)
 
@@ -2565,8 +2565,8 @@ Image component sizes
 
       Code (inc. data)   RO Data    RW Data    ZI Data      Debug   
 
-     26512       2604       1852        312       7800     820290   Grand Totals
-     26512       2604       1852        312       7800     820290   ELF Image Totals
+     26512       2604       1852        312       7800     812446   Grand Totals
+     26512       2604       1852        312       7800     812446   ELF Image Totals
      26512       2604       1852        312          0          0   ROM Totals
 
 ==============================================================================

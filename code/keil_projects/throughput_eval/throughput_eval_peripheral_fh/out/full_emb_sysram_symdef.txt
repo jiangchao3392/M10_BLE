@@ -1,4 +1,4 @@
-#<SYMDEFS># ARM Linker, 5060528: Last Updated: Thu May 03 14:51:38 2018
+#<SYMDEFS># ARM Linker, 5060528: Last Updated: Fri May 04 10:03:40 2018
 0x00000000 N __ARM_use_no_argv
 0x000000a0 N __Vectors_Size
 0x000210b1 T exec_patching_spota
